@@ -15,7 +15,7 @@ import com.example.xaradrim.benchmark_example.Tests.Testable;
 public class MainActivity extends ActionBarActivity {
 
     private Test t = null;
-    Testable tester = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,32 +54,30 @@ public class MainActivity extends ActionBarActivity {
 
 
     public void onClick(View view) {
-        Thread BufferThread;
+
         ToggleButton B = (ToggleButton) view.findViewById(R.id.runTest);
 
 
         // this is to selecting and running the actual test
 
 
-        if (tester == null && B.isChecked()) {
+        if (B.isChecked()) {
 
 
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
 
                 //System.out.println("Im starting the cpu test");
-                tester = t.make_test("cpu");
+                t.add_test(t.make_test("cpu"));
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
-                System.out.println("Im starting the memory test");
-                tester = null;
+                t.add_test(t.make_test("memory"));
 
-                return;
             }
 
-            BufferThread = new Thread(tester);
-            BufferThread.start();
+            t.start_test();
+
 
 
 
@@ -87,18 +85,8 @@ public class MainActivity extends ActionBarActivity {
 
         else
             {
-                if(tester == null){
-                    return;
-                }
 
-                if (tester.isTesting()) {
-                    System.out.println("hey there im stopping ! \n");
-                    tester.stop_test();
-                    tester = null;
-
-                }
-
-
+                t.halt_execution();
 
             }
     }

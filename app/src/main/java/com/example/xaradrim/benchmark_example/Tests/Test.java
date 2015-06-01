@@ -1,9 +1,19 @@
 package com.example.xaradrim.benchmark_example.Tests;
 
+import java.util.ArrayList;
+
 /**
  * Created by xaradrim on 5/30/15.
  */
 public class Test {
+
+    private ArrayList<Testable> testContainer;
+    private ArrayList<Thread> bufferContainer;
+
+    public Test(){
+        testContainer = new ArrayList<Testable>();
+        bufferContainer = new ArrayList<Thread>();
+    }
 
     /**
      * make a tester based on the param string option
@@ -31,6 +41,32 @@ public class Test {
         return null ;
     }
 
+    public void add_test(Testable t){
+        if (t == null )return ;
+
+        this.testContainer.add(t);
+        this.bufferContainer.add(new Thread(t));
+    }
+
+    public void start_test(){
+
+        if (this.bufferContainer.isEmpty()) return ;
+
+        for (Thread t : this.bufferContainer){
+            t.start();
+        }
+    }
+    public void halt_execution(){
+
+        if (this.testContainer.isEmpty()) return ;
+
+        for (Testable t : this.testContainer){
+            t.stop_test();
+        }
+
+        this.testContainer.clear();
+        this.bufferContainer.clear();
+    }
     /**
      * To be implemented =D
      */
