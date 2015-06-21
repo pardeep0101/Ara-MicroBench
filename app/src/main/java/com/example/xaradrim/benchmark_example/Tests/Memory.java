@@ -14,18 +14,27 @@ import java.util.ArrayList;
  * Created by xaradrim on 5/31/15.
  */
 public class Memory implements Testable {
+
+
     ArrayList<Byte []> Mem_control ;
     long TotalMem = (new ActivityManager.MemoryInfo()).availMem;
+    boolean control = false;
     long numChunks = 24 ;
 
     @Override
     public void run() {
-
+        this.control = false;
+        while(this.control != true){
+            this.writeToMemory(this.control);
+            this.make_delay();
+            this.readFromMemory(this.control);
+            this.make_delay();
+        }
     }
 
     @Override
     public void stop_test() {
-
+        this.control = true;
     }
 
     @Override
@@ -43,20 +52,26 @@ public class Memory implements Testable {
         }
     }
 
-    private void writeToMemory(){
+    private void writeToMemory(boolean control){
         Byte temp = new Byte("1");
         for(Byte[] b : this.Mem_control ){
             for(int i = 0 ; i < b.length ; i++){
+                if (control){
+                    break;
+                }
 
                 b[i] = temp;
             }
         }
     }
 
-    private void readFromMemory(){
+    private void readFromMemory(boolean control){
         Byte temp;
         for(Byte[] b : this.Mem_control ){
             for(int i = 0 ; i < b.length ; i++){
+                if (control){
+                    break;
+                }
                 temp = b[i];
                 System.out.println(temp);
             }
