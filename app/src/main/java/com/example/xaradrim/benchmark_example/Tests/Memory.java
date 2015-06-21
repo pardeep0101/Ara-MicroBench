@@ -43,11 +43,24 @@ public class Memory implements Testable {
         }
     }
 
-    private void readToMemory(){
+    private void writeToMemory(){
+        Byte temp = new Byte("1");
+        for(Byte[] b : this.Mem_control ){
+            for(int i = 0 ; i < b.length ; i++){
 
+                b[i] = temp;
+            }
+        }
     }
 
-    private void writeToMemory(){
+    private void readFromMemory(){
+        Byte temp;
+        for(Byte[] b : this.Mem_control ){
+            for(int i = 0 ; i < b.length ; i++){
+                temp = b[i];
+                System.out.println(temp);
+            }
+        }
 
     }
 
