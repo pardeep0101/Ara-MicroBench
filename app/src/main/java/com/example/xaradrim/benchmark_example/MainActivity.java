@@ -1,5 +1,10 @@
 package com.example.xaradrim.benchmark_example;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,23 +12,36 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.example.xaradrim.benchmark_example.Tests.ObserverCPU;
 import com.example.xaradrim.benchmark_example.Tests.Test;
 import com.example.xaradrim.benchmark_example.Tests.Testable;
+
+import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
     private Test t = null;
-
+    private TextView myText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        t = new Test();
+//        if (isProcessRunning("com.eembc.andebench")) {
+//            Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.eembc.andebench");
+//            startActivity(launchIntent);
+//
+//        } else {
+            t = new Test();
+            System.out.println("Observer attached");
+            new ObserverCPU(t,"ProjectARA-CPU");
 
+//        }
     }
 
 
@@ -60,35 +78,55 @@ public class MainActivity extends ActionBarActivity {
 
         // this is to selecting and running the actual test
 
-
+        System.out.println("clicked");
         if (B.isChecked()) {
-
 
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
 
-                //System.out.println("Im starting the cpu test");
+                System.out.println("Im starting the cpu test");
                 t.add_test(t.make_test("cpu"));
+
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
+                System.out.println("Im starting the memory test");
                 t.add_test(t.make_test("memory"));
 
             }
 
+            System.out.println("Test Started.");
             t.start_test();
 
 
+        } else {
 
+            t.halt_execution();
 
         }
-
-        else
-            {
-
-                t.halt_execution();
-
-            }
     }
 
+    //listing other benchmark app running in bakcground, if any.
+    void listingOB() {
+        if (isProcessRunning("com.example.xaradrim.benchmark_example")) {
+            System.out.println(" only Project ara is running? -> " );
+        } else {
+            System.out.println("AndEbenc is running> ->" + isProcessRunning("com.eembc.andebench"));
+        }
+
+    }
+
+    boolean isProcessRunning(String processName) {
+        if (processName == null)
+            return false;
+
+        ActivityManager manager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> processes = manager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo process : processes) {
+            if (processName.equals(process.processName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

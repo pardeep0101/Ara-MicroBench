@@ -5,16 +5,19 @@ import java.util.ArrayList;
 /**
  * Created by xaradrim on 5/30/15.
  */
-public class Test {
+public class Test implements ObserveBench{
 
     private ArrayList<Testable> testContainer;
     private ArrayList<Thread> bufferContainer;
-
+    private ArrayList<TestObservers> tObserve ;
+    private String testType = null;
+    private boolean testStarted = false,testStopped = true;
     public Test(){
         testContainer = new ArrayList<Testable>();
         bufferContainer = new ArrayList<Thread>();
+        tObserve = new ArrayList<TestObservers>();
     }
-
+    //
     /**
      * make a tester based on the param string option
      * and return the tester object for it.
@@ -30,6 +33,7 @@ public class Test {
      *
      */
     public Testable make_test(String param){
+        testType = param;
         param = param.toLowerCase();
 
         switch (param){
@@ -49,21 +53,25 @@ public class Test {
     }
 
     public void start_test(){
-
+        notifyObserver();
         if (this.bufferContainer.isEmpty()) return ;
 
         for (Thread t : this.bufferContainer){
             t.start();
+            testStarted=true;testStopped=false;
+            System.out.println("started");
+            notifyObserver();
         }
     }
     public void halt_execution(){
-
+        notifyObserver();
         if (this.testContainer.isEmpty()) return ;
 
         for (Testable t : this.testContainer){
-            t.stop_test();
+            t.stop_test();testStarted=false;
+            testStopped=true;
         }
-
+        notifyObserver();
         this.testContainer.clear();
         this.bufferContainer.clear();
     }
@@ -71,6 +79,28 @@ public class Test {
      * To be implemented =D
      */
     public void logTest(){
+
+    }
+
+    @Override
+    public void addObserver(TestObservers to) {
+        System.out.println("observer added in test class");
+        this.tObserve.add(to);
+
+    }
+
+    @Override
+    public void removeObserver(TestObservers to) {
+        int index = this.tObserve.indexOf(tObserve);
+        this.tObserve.remove(index);
+    }
+
+    @Override
+    public void notifyObserver() {
+        System.out.println("notified ..");
+        for(TestObservers to: this.tObserve){
+            to.update(testType,testStarted, testStopped);
+        }
 
     }
 }
