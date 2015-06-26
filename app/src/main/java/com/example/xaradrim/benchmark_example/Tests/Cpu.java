@@ -12,22 +12,21 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 /**
  * Created by xaradrim on 5/29/15.
- * updated by pdp on 26-Jun
+ * * updated by pdp on 26-Jun
  */
 public class Cpu  implements Testable {
     private boolean Testing;
 
-    // File initiators.
+    // File
     FileWriter fw;
     BufferedWriter bw;
     File file;
     int count=0;
+    float volt=0,curr=0,power=0;
+    boolean isVolt = true;
     Cpu(){
-
-        //appending timestamp in the file name
         long unixTime = System.currentTimeMillis() / 1000L;
-        //file save at this location
-        String fpath = "/sdcard/charsticks/" + "CPU-charLog" +unixTime+ ".txt";
+        String fpath = "/sdcard/charsticks/" + "CPU-charLog"+".txt";
 
 
         file= new File(fpath);
@@ -63,19 +62,26 @@ public class Cpu  implements Testable {
             String s = null;
             try{
 
-                //running ADB commands; Writing to the file in /sdcard/
+
                 Process process = Runtime.getRuntime().exec("cat /sys/class/power_supply/battery/voltage_now cat /sys/class/power_supply/battery/current_now");
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 fw = new FileWriter(file.getAbsoluteFile(), true);
                 bw = new BufferedWriter(fw);
 
-                bw.write(count);
+                bw.write(Integer.toString(count));
+
                 while( (s= bufferedReader.readLine())!=null ) {
-
-
-                    bw.write(" "+s + " ");
-
+                    if(isVolt) {volt=(Float.parseFloat(s))/1000000;System.out.println("voltage " + volt);isVolt=false;
+                        bw.write(" " + Double.toString(volt) + " ");
+                    }else{
+                        curr=(Float.parseFloat(s))/1000000;System.out.println("current "+ curr);isVolt=true;
+                        bw.write(" " + Double.toString(curr) + " ");
+                        power = volt*curr;
+                    }
                 }
+
+                System.out.println("Power " + power);
+                bw.write(" "+ Float.toString(power));
                 count++;
                 bw.newLine();
                 bw.close();
