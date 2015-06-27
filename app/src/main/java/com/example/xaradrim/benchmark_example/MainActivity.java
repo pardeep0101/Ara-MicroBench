@@ -39,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
 //        } else {
             t = new Test();
             System.out.println("Observer attached");
-          //  new ObserverCPU(t,"ProjectARA-CPU");
+            new ObserverCPU(t,"ProjectARA-CPU");
 
 //        }
     }

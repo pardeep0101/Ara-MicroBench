@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by larsip-ubuntu-2 on 6/26/15.
  */
-public class ObserverCPU implements TestObservers {
+public class ObserverCPU implements TestObservers , Runnable{
     private ObserveBench ob1;
     private String funName = null;
 
@@ -31,7 +31,8 @@ public class ObserverCPU implements TestObservers {
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
 
-
+    Thread t;
+    boolean threadRunning = false;
     public ObserverCPU(ObserveBench ob1, String name) {
         this.ob1 = ob1;
         this.funName = name;
@@ -41,6 +42,7 @@ public class ObserverCPU implements TestObservers {
         String fpath = "/sdcard/charsticks/" + "CPU-charLog" + ".txt";
         file = new File(fpath);
         // If file does not exists, then create it
+
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -48,7 +50,7 @@ public class ObserverCPU implements TestObservers {
         } catch (IOException e) {
             System.out.println(e);
         }
-
+        t = new Thread(this, "CPU_ObserverThread");
     }
 
     @Override
@@ -59,66 +61,86 @@ public class ObserverCPU implements TestObservers {
 
 
         //while (this.testType.equalsIgnoreCase("cpu") && this.testStarted) {
-//        while (this.testStarted) {
+      if (this.testType.equalsIgnoreCase("cpu") && this.testStarted && !(this.threadRunning)) {
 //
 //           // startObservation();
 //            //this.testType = testType;
 //            this.testStarted = testStarted;
-//            System.out.println("Writing data...");
-//
-//        }
+           System.out.println("Writing data...");
+          threadRunning = true;
+            t.start();
+        }
+        if(this.testStopped && this.threadRunning){
+            try {
+                t.join();
+                System.out.println("Cpu observer Thread stopped");
+                threadRunning = false;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
     private void startObservation() {
 
-        try {
-            fw = new FileWriter(file.getAbsoluteFile(), true);
-            bw = new BufferedWriter(fw);
+            try {
+                fw = new FileWriter(file.getAbsoluteFile(), true);
+                bw = new BufferedWriter(fw);
 
 
-            //running ADB command lines
-            Process process = Runtime.getRuntime().exec("cat /sys/class/power_supply/battery/voltage_now cat /sys/class/power_supply/battery/current_now");
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                //running ADB command lines
+                Process process = Runtime.getRuntime().exec("cat /sys/class/power_supply/battery/voltage_now cat /sys/class/power_supply/battery/current_now");
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-            //reading and writing output to file
-            bw.write(Integer.toString(count));
+                //reading and writing output to file
+                bw.write(Integer.toString(count));
 
-            while ((s = bufferedReader.readLine()) != null) {
+                while ((s = bufferedReader.readLine()) != null) {
 
-                //extracting voltage and current
-                if (isVolt) {
-                    volt = (Float.parseFloat(s)) / 1000000;
-                    //System.out.println("voltage " + volt);
-                    isVolt = false;
+                    //extracting voltage and current
+                    if (isVolt) {
+                        volt = (Float.parseFloat(s)) / 1000000;
+                        //System.out.println("voltage " + volt);
+                        isVolt = false;
 
-                    bw.write(" " + Double.toString(volt) + " ");
-                } else {
-                    curr = (Float.parseFloat(s)) / 1000000;
-                    //System.out.println("current " + curr);
-                    isVolt = true;
+                        bw.write(" " + Double.toString(volt) + " ");
+                    } else {
+                        curr = (Float.parseFloat(s)) / 1000000;
+                        //System.out.println("current " + curr);
+                        isVolt = true;
 
-                    bw.write(" " + Double.toString(curr) + " ");
+                        bw.write(" " + Double.toString(curr) + " ");
 
-                    power = volt * curr;
+                        power = volt * curr;
+                    }
                 }
+                //getting power and writing to the file
+                System.out.println("Power consumed " + power);
+
+                bw.write(" " + Float.toString(power));
+                count++;
+                bw.newLine();
+
+
+                bw.close();
+
+            } catch (IOException e) {
+                System.out.println("IOException occured..");
+                e.printStackTrace();
             }
-            //getting power and writing to the file
-            //System.out.println("Power consumed " + power);
 
-            bw.write(" " + Float.toString(power));
-            count++;
-            bw.newLine();
-
-
-            bw.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
 
+    @Override
+    public void run() {
+        while (this.testStarted) {
+            System.out.println("Caching data for writing..");
+            startObservation();
+        }
+
+    }
 }
 
