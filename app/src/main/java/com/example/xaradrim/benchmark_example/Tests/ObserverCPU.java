@@ -59,13 +59,14 @@ public class ObserverCPU implements TestObservers {
 
 
         //while (this.testType.equalsIgnoreCase("cpu") && this.testStarted) {
-        while (this.testStarted) {
-
-            startObservation();
-            //this.testType = testType;
-            this.testStarted = testStarted;
-
-        }
+//        while (this.testStarted) {
+//
+//           // startObservation();
+//            //this.testType = testType;
+//            this.testStarted = testStarted;
+//            System.out.println("Writing data...");
+//
+//        }
 
     }
 
@@ -103,7 +104,7 @@ public class ObserverCPU implements TestObservers {
                 }
             }
             //getting power and writing to the file
-            System.out.println("Power consumed " + power);
+            //System.out.println("Power consumed " + power);
 
             bw.write(" " + Float.toString(power));
             count++;
