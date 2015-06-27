@@ -38,6 +38,7 @@ public class MainActivity extends ActionBarActivity {
 //
 //        } else {
             t = new Test();
+        //code added : Pardeep
             System.out.println("Observer attached");
             new ObserverCPU(t,"ProjectARA-CPU");
 
@@ -105,7 +106,7 @@ public class MainActivity extends ActionBarActivity {
 
         }
     }
-
+    //Code added : Pardeep
     //listing other benchmark app running in bakcground, if any.
     void listingOB() {
         if (isProcessRunning("com.example.xaradrim.benchmark_example")) {

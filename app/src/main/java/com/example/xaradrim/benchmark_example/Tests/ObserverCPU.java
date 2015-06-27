@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * Created by larsip-ubuntu-2 on 6/26/15.
+ * Created by Pardeep on 6/26/15.
+ * Example CPU-observer for our CPU-benchmark
+ *
  */
 public class ObserverCPU implements TestObservers , Runnable{
     private ObserveBench ob1;
@@ -31,8 +33,10 @@ public class ObserverCPU implements TestObservers , Runnable{
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
 
+    //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
+
     public ObserverCPU(ObserveBench ob1, String name) {
         this.ob1 = ob1;
         this.funName = name;
@@ -41,8 +45,8 @@ public class ObserverCPU implements TestObservers , Runnable{
         long unixTime = System.currentTimeMillis() / 1000L; //to create unique file everytime test runs *not used right now
         String fpath = "/sdcard/charsticks/" + "CPU-charLog" + ".txt";
         file = new File(fpath);
-        // If file does not exists, then create it
 
+        // If file does not exists, then create it
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -58,7 +62,6 @@ public class ObserverCPU implements TestObservers , Runnable{
         this.testType = testType;
         this.testStarted = testStarted;
         this.testStopped = testStopped;
-
 
         //while (this.testType.equalsIgnoreCase("cpu") && this.testStarted) {
       if (this.testType.equalsIgnoreCase("cpu") && this.testStarted && !(this.threadRunning)) {
