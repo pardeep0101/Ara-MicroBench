@@ -79,24 +79,24 @@ public class MainActivity extends ActionBarActivity {
 
         // this is to selecting and running the actual test
 
-        System.out.println("clicked");
+        //System.out.println("clicked");
         if (B.isChecked()) {
 
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
 
-                System.out.println("Im starting the cpu test");
+                //System.out.println("Im starting the cpu test");
                 t.add_test(t.make_test("cpu"));
 
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
-                System.out.println("Im starting the memory test");
+                //System.out.println("Im starting the memory test");
                 t.add_test(t.make_test("memory"));
 
             }
 
-            System.out.println("Test Started.");
+            //System.out.println("Test Started.");
             t.start_test();
 
 

@@ -58,7 +58,8 @@ public class Test implements ObserveBench{
 
         for (Thread t : this.bufferContainer){
             t.start();
-            testStarted=true;testStopped=false;
+            testStarted=true;
+            testStopped=false;
             System.out.println("started");
             notifyObserver();
         }
@@ -68,7 +69,8 @@ public class Test implements ObserveBench{
         if (this.testContainer.isEmpty()) return ;
 
         for (Testable t : this.testContainer){
-            t.stop_test();testStarted=false;
+            t.stop_test();
+            testStarted=false;
             testStopped=true;
         }
         notifyObserver();
@@ -99,7 +101,7 @@ public class Test implements ObserveBench{
     public void notifyObserver() {
         System.out.println("notified ..");
         for(TestObservers to: this.tObserve){
-            to.update(testType,testStarted, testStopped);
+            to.update(this.testType,this.testStarted, this.testStopped);
         }
 
     }
