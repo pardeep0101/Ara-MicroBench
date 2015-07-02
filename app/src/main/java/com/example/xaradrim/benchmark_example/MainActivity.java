@@ -1,50 +1,38 @@
 package com.example.xaradrim.benchmark_example;
 
-import android.app.Activity;
+
 import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.example.xaradrim.benchmark_example.Tests.ObserverCPU;
+import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
+import com.example.xaradrim.benchmark_example.Tests.DataLogging.ObserverCPU;
 import com.example.xaradrim.benchmark_example.Tests.Test;
-import com.example.xaradrim.benchmark_example.Tests.Testable;
-
-import java.util.List;
+import android.os.BatteryManager;
 
 public class MainActivity extends ActionBarActivity {
 
     private Test t = null;
-    private TextView myText = null;
+    private ObserverCPU external_observer = null;
+    AttributeGenerator at1 = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        if (isProcessRunning("com.eembc.andebench")) {
-//            Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.eembc.andebench");
-//            startActivity(launchIntent);
-//
-//        } else {
-            t = new Test();
+        t = new Test();
         //code added : Pardeep
-            System.out.println("Observer attached");
-            new ObserverCPU(t,"ProjectARA-CPU");
+        //creating the observer object to collect data
+       // external_observer = new ObserverCPU("CPU", "CPU-observation-log");
+        at1 = AttributeGenerator.getInstance();
 
-//        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -79,55 +67,43 @@ public class MainActivity extends ActionBarActivity {
 
         // this is to selecting and running the actual test
 
-        //System.out.println("clicked");
         if (B.isChecked()) {
 
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
-
                 //System.out.println("Im starting the cpu test");
-                t.add_test(t.make_test("cpu"));
-
+               t.add_test(t.make_test("cpu"));
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
                 //System.out.println("Im starting the memory test");
                 t.add_test(t.make_test("memory"));
-
+            }
+            //Code added:Pardeep
+            // check box controller for data capturing
+            if (((CheckBox) findViewById(R.id.dcpu_box)).isChecked()) {
+                System.out.println("Clicked" + ((CheckBox) findViewById(R.id.dcpu_box)).getText());
+                at1.addAttributeList((((CheckBox) findViewById(R.id.dcpu_box)).getText()).toString());
+                //at1.addAttributeList("test");
+                //external_observer.startTest();
+            }
+            if (((CheckBox) findViewById(R.id.dmemory_box)).isChecked()) {
+                System.out.println("Clicked" + ((CheckBox) findViewById(R.id.dmemory_box)).getText());
+                at1.addAttributeList(((CheckBox) findViewById(R.id.dmemory_box)).getText().toString());
+                //external_observer.startTest();
             }
 
-            //System.out.println("Test Started.");
-            t.start_test();
 
+            t.start_test();
+            at1.prepareAttributes();
 
         } else {
 
             t.halt_execution();
+            //external_observer.stopTest();
+            at1.emptyAttributeList();
 
         }
     }
-    //Code added : Pardeep
-    //listing other benchmark app running in bakcground, if any.
-    void listingOB() {
-        if (isProcessRunning("com.example.xaradrim.benchmark_example")) {
-            System.out.println(" only Project ara is running? -> " );
-        } else {
-            System.out.println("AndEbenc is running> ->" + isProcessRunning("com.eembc.andebench"));
-        }
 
-    }
-
-    boolean isProcessRunning(String processName) {
-        if (processName == null)
-            return false;
-
-        ActivityManager manager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> processes = manager.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo process : processes) {
-            if (processName.equals(process.processName)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

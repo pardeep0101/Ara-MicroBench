@@ -12,13 +12,6 @@ public class Cpu implements Testable {
 
    private boolean Testing;
 
-
-
-
-    Cpu() {
-
-    }
-
     @Override
     public void run() {
 
@@ -27,10 +20,6 @@ public class Cpu implements Testable {
         Random r = new Random();
         this.Testing = true;
 
-        //runing the CPu for specified time
-
-
-            //repeated benchmark-test loop
         System.out.println("runnning CPU loop");
             while (this.isTesting() ) {
                 number = r.nextInt(100000);
@@ -50,8 +39,6 @@ public class Cpu implements Testable {
     @Override
     public void stop_test() {
         this.Testing = false;
-        System.out.println("terminated...!");
-
     }
 
     @Override
