@@ -30,9 +30,9 @@ public class Cpu  implements Testable {
         while (this.isTesting()) {
 
             long current = b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
-            long voltage = b.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER);
+            long power = b.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER);
 
-            System.out.println("Current : "+current+" \nPower : "+voltage+" \n");
+            System.out.println("Current(microAMP) : "+current+" \nPower(nanowatts/hour) : "+power+" \n");
             //long voltage = b.getLongProperty(BatteryManager.);
             number = r.nextInt(100000);
             number++;
