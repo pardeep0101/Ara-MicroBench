@@ -1,24 +1,39 @@
 package com.example.xaradrim.benchmark_example.Tests;
 
+import android.annotation.TargetApi;
+import android.os.BatteryManager;
+import android.os.Build;
+
 import java.util.Random;
 
 /**
- * Created by xaradrim on 5/29/15.
+ * Created by MAX R. BERRIOS
+ * OSCAR LABS
+ * on 5/29/15.
  */
 public class Cpu  implements Testable {
     private boolean Testing;
 
 
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void run() {
 
 
         int number;
+        BatteryManager b = new BatteryManager();
         Random r = new Random();
         this.Testing = true;
 
+        System.out.println("Starting CPU \n");
         while (this.isTesting()) {
+
+            long current = b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
+            long voltage = b.getLongProperty(BatteryManager.BATTERY_PROPERTY_ENERGY_COUNTER);
+
+            System.out.println("Current : "+current+" \nPower : "+voltage+" \n");
+            //long voltage = b.getLongProperty(BatteryManager.);
             number = r.nextInt(100000);
             number++;
             number += 2;
