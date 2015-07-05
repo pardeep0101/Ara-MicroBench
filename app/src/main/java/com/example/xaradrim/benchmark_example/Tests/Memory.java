@@ -25,6 +25,7 @@ public class Memory implements Testable {
     public void run() {
         this.control = false;
         // just adding something else
+
         while(this.control != true){
             this.writeToMemory(this.control);
             this.make_delay();
