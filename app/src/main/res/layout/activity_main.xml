@@ -40,19 +40,12 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Capture CPU data"
-        android:id="@+id/dcpu_box"
+        android:text="Capture data"
+        android:id="@+id/dcapture_box"
         android:layout_alignTop="@+id/cpu_box"
         android:layout_alignRight="@+id/textView2"
         android:layout_alignEnd="@+id/textView2" />
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Capture Mem data"
-        android:id="@+id/dmemory_box"
-        android:layout_below="@+id/dcpu_box"
-        android:layout_alignRight="@+id/textView2"
-        android:layout_alignEnd="@+id/textView2" />
+
 
     <ToggleButton
         android:layout_width="wrap_content"

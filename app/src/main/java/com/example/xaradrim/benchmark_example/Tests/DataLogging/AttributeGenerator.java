@@ -13,8 +13,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
 
     private static AttributeGenerator attributeGenerator = new AttributeGenerator();
 
-    private static String Voltage_now= "/sys/class/power_supply/battery/voltage_now cat";
-    private static String Current_now= "/sys/class/power_supply/battery/current_now";
+
     private String observeType;
     private boolean observeStarted =false, observeStopped=false;
     private int apiLevel = 0;
@@ -34,7 +33,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
     }
     private void initializeObserver(){
         ObserverTemplate cpu = new ObserverCPU(this, "Attributes-CPU-observation-log");
-        ObserverTemplate mem = new ObserverMemory(this,"Attributes-MEM-observation-log");
+        //ObserverTemplate mem = new ObserverMemory(this,"Attributes-MEM-observation-log");
     }
 
     public void addAttributeList(String observersName){
@@ -72,7 +71,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
                     System.out.println(this.observeType + " " + this.observeStarted + " " + this.observeStopped);
                     notifyObserver();
                 } else {
-                    System.out.println("observer for such is not available");
+                    //System.out.println("observer for such is not available");
                 }
             }
         }

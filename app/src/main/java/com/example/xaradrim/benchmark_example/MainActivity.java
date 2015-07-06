@@ -81,17 +81,13 @@ public class MainActivity extends ActionBarActivity {
             }
             //Code added:Pardeep
             // check box controller for data capturing
-            if (((CheckBox) findViewById(R.id.dcpu_box)).isChecked()) {
-                System.out.println("Clicked" + ((CheckBox) findViewById(R.id.dcpu_box)).getText());
-                at1.addAttributeList((((CheckBox) findViewById(R.id.dcpu_box)).getText()).toString());
+            if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
+                System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
+                at1.addAttributeList((((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
                 //at1.addAttributeList("test");
                 //external_observer.startTest();
             }
-            if (((CheckBox) findViewById(R.id.dmemory_box)).isChecked()) {
-                System.out.println("Clicked" + ((CheckBox) findViewById(R.id.dmemory_box)).getText());
-                at1.addAttributeList(((CheckBox) findViewById(R.id.dmemory_box)).getText().toString());
-                //external_observer.startTest();
-            }
+
 
 
             t.start_test();
