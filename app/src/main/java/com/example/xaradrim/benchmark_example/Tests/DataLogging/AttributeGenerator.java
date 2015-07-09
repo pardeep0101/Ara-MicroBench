@@ -8,6 +8,8 @@ import 	android.os.Build.VERSION_CODES;
 
 /**
  * Created by Pardeep on 7/2/15.
+ * Right now this class is just an interface of ObserverCPU.java to the main activity.
+ * This class could come handy in future if we need to expand our model of capturing data or if we have separate observers running at the same time.
  */
 public class AttributeGenerator implements Runnable, manageObservers{
 
@@ -56,11 +58,6 @@ public class AttributeGenerator implements Runnable, manageObservers{
     }
 
     public void prepareAttributes(){
-//
-//        for (String temp : currentObserver){
-//            runObservers.add(observerTypeList.contains(temp) ? "Yes" : "No");
-//        }
-//        System.out.println(runObservers);
         for(int i=0;i<currentObserver.size();i++) {
             for(int j =0; j<observerTypeList.size();j++) {
                 if (currentObserver.get(i).contains(observerTypeList.get(j))) {
@@ -91,7 +88,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
 
     @Override
     public void addObserver(AttributeObserver tObserve, String observerType) {
-        System.out.println("observer added in test class");
+        //System.out.println("observer added in test class");
         this.tObserve.add(tObserve);
         this.observerTypeList.add(observerType);
 //        this.observerTypeList.add("Capture Mem data");

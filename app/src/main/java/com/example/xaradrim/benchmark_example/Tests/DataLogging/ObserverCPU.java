@@ -11,11 +11,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 
+// moto- via API
+// Samsung s6 both via API and ADB
+// nexus s via ADB but from inside app only
 
 /**
  * Created by Pardeep on 6/26/15.
@@ -29,7 +34,7 @@ public class ObserverCPU extends ObserverTemplate {
     private BufferedWriter bw;
     private File file;
     private static int count = 0;
-    private long volt=0, curr=0, power=0;
+    private double volt=0, curr=0, power=0;
 
     private long freeSize = 0L, totalSize = 0L, usedSize = -1L;
     private String s = null;
@@ -43,11 +48,12 @@ public class ObserverCPU extends ObserverTemplate {
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
+    private String sf = "", sf1 = "";
 
     //strings to get
 
-    private static String samsung_Voltage_now = "/sys/class/power_supply/battery/voltage_now cat";
-    private static String samsung_Current_now = "/sys/class/power_supply/battery/current_now";
+    private static String samsung_Voltage_now = "cat /sys/class/power_supply/battery/voltage_now";
+    private static String samsung_Current_now = "cat /sys/class/power_supply/battery/current_now";
     private static String samsung_Meminfo = "cat /proc/meminfo";
 
     /*
@@ -72,6 +78,7 @@ public class ObserverCPU extends ObserverTemplate {
         this.initializieFile();
     }
 
+        //creates the directory and file to write in..
     public void initializieFile() {
         File sdCard = Environment.getExternalStorageDirectory();
         File file1 = new File(sdCard + "/Attribute-data");
@@ -87,17 +94,6 @@ public class ObserverCPU extends ObserverTemplate {
         } catch (IOException e) {
             System.out.println("file IO"+e);
         }
-//
-//        fpath = this.fpath + this.fileName + ".txt";
-//        file = new File(fpath);
-//        // If file does not exists, then create it
-//        try {
-//            if (!file.exists()) {
-//                file.createNewFile();
-//            }
-//        } catch (IOException e) {
-//            System.out.println("file IO" + e);
-//        }
     }
 
     @Override
@@ -126,27 +122,17 @@ public class ObserverCPU extends ObserverTemplate {
         }
     }
 
+// start and stop test methods could be when running this cass independltly or in Unit testing ;) .
     public void startTest() {
         this.testStarted = true;
         this.testStopped = false;
         this.update(this.testType, this.testStarted, this.testStopped);
-        //System.out.println("test started.......");
     }
 
     public void stopTest() {
         this.testStarted = false;
         this.testStopped = true;
         this.update(this.testType, this.testStarted, this.testStopped);
-        //System.out.println("test stopped.......");
-    }
-
-    @Override
-    public void startObservation() {
-        getCPUStat();
-        getCPUStat_AAPI();
-        getApplicationUsedMemorySize();
-        getSystemUsedMemorySize();
-
     }
 
     @Override
@@ -162,6 +148,27 @@ public class ObserverCPU extends ObserverTemplate {
             }
         }
     }
+
+    // set of methods to run in thread
+
+    @Override
+    public void startObservation() {
+
+        //to get CPU stat i.e volt and current now via ADB
+        getCPUStat();
+
+        //to get CPU stat i.e volt and current now via API
+        getCPUStat_AAPI();
+
+        //memory usage of app and system
+        getApplicationUsedMemorySize();
+        getSystemUsedMemorySize();
+
+        // CPU core usage in percentage
+        readCoreUsage();
+
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void getCPUStat_AAPI() {
 
@@ -184,31 +191,26 @@ public class ObserverCPU extends ObserverTemplate {
             //running ADB command lines
 
 
-            process = Runtime.getRuntime().exec("cat " + samsung_Voltage_now + "  " + samsung_Current_now);
+            process = Runtime.getRuntime().exec(samsung_Voltage_now + "  " + samsung_Current_now);
+
             bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             bw.write(Integer.toString(count));
             while ((s = bufferedReader.readLine()) != null) {
                 //extracting voltage and current
                 if (isVolt) {
-                    volt = (Long.parseLong(s));// / 1000000);
+                    volt = (Double.parseDouble(s)/1000000);
                     isVolt = false;
-                    //System.out.println("voltage " + volt);
                     bw.write(" " + volt);
                 } else {
-                    curr = (Long.parseLong(s));// / 1000000);
+                    curr = Math.abs(Double.parseDouble(s)/1000000);
                     isVolt = true;
-                    //System.out.println("current " + curr);
                     bw.write(" " + curr);
                 }
             }
             power = volt * curr;
-            //String s1 = String.format("%.6f", power);
-            //getting power and writing to the file
-            //System.out.println("Power consumed " + s1);
-            System.out.println("Current(microAMP) -> " + curr + " Power(nanowatts/hour) ->" + power + " \n");
-            bw.write(" " + Long.toString(power));
-            //count++;
-            //bw.newLine();
+           // System.out.println("Current(microAMP) -> " + curr + " Power(picowatts/Second) ->" + power + " \n");
+
+            bw.write(" " + Double.toString(power));
             bw.close();
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -223,11 +225,9 @@ public class ObserverCPU extends ObserverTemplate {
             fw = new FileWriter(file.getAbsoluteFile(), true);
             bw = new BufferedWriter(fw);
             Runtime info = Runtime.getRuntime();
-            freeSize = (info.freeMemory()) / 1024;
+            freeSize = (info.freeMemory()) / 1024 ;
             totalSize = (info.totalMemory()) / 1024;
             usedSize = totalSize - freeSize;
-            //System.out.println("mem tot" + totalSize);
-            //System.out.println("mem free" + freeSize);
             bw.write(" " + (Long.toString(totalSize)));
             bw.write(" " + (Long.toString(freeSize)));
             bw.write(" " + (Long.toString(usedSize)));
@@ -263,16 +263,12 @@ public class ObserverCPU extends ObserverTemplate {
                     }
                 }
             }
-            //System.out.println("mem Stot" + sf.trim());
             bw.write(" " + sf.trim());
-            //System.out.println("mem Sfree" + sf1.trim());
             bw.write(" " + sf1.trim());
             usedSize = Integer.parseInt(sf.trim()) - Integer.parseInt(sf1.trim());
-            //usedSize=totalSize-freeSize;
-            //System.out.println("Used mem: "+usedSize);
-            bw.write(" " + usedSize + " ");
-            count++;
-            bw.newLine();
+            bw.write(" " + usedSize);
+//            count++;
+//            bw.newLine();
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -286,6 +282,100 @@ public class ObserverCPU extends ObserverTemplate {
         formatter.parse(str, pos);
         return str.length() == pos.getIndex();
     }
+    // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
+    private void readCoreUsage() {
+        try {
+            fw = new FileWriter(file.getAbsoluteFile(), true);
+            bw = new BufferedWriter(fw);
 
+            int i = 0;
+            float icore;
+        while (i < 8) {
+            icore = (readCore(i) * 100);
+
+            //System.out.println("usage:" + i + " ->" + icore);//readUsage());
+            bw.write(" " + icore);
+            i += 1;
+        }
+
+            count++;
+            bw.newLine();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//returns the core usage of ith core.
+    private float readCore(int i)
+    {
+
+        try {
+            RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
+            for(int ii = 0; ii < i + 1; ++ii)
+            {
+                reader.readLine();
+            }
+            String load = reader.readLine();
+
+
+            if(load.contains("cpu"))
+            {
+                String[] toks = load.split(" +");
+
+
+
+                long work1 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
+                long total1 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
+                        Long.parseLong(toks[4]) + Long.parseLong(toks[5])
+                        + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
+
+                try
+                {
+
+                    Thread.sleep(200);
+                }
+                catch (Exception e) {}
+
+                reader.seek(0);
+                //skip to the line we need
+                for(int ii = 0; ii < i + 1; ++ii)
+                {
+                    reader.readLine();
+                }
+                load = reader.readLine();
+
+                if(load.contains("cpu"))
+                {
+                    reader.close();
+                    toks = load.split(" +");
+
+                    long work2 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
+                    long total2 = Long.parseLong(toks[1])+ Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
+                            Long.parseLong(toks[4]) + Long.parseLong(toks[5])
+                            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
+                    return (float)(work2 - work1) / ((total2 - total1));
+                }
+                else
+                {
+                    reader.close();
+                    return 0;
+                }
+
+            }
+            else
+            {
+                reader.close();
+                return 0;
+            }
+
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return 0;
+    }
 }
 

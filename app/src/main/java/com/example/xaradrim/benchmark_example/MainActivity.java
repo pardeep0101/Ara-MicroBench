@@ -1,8 +1,6 @@
 package com.example.xaradrim.benchmark_example;
 
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,12 +12,12 @@ import android.widget.ToggleButton;
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.ObserverCPU;
 import com.example.xaradrim.benchmark_example.Tests.Test;
-import android.os.BatteryManager;
+
 
 public class MainActivity extends ActionBarActivity {
 
     private Test t = null;
-    private ObserverCPU external_observer = null;
+    private ObserverCPU external_observer = null; // to run observer separately
     AttributeGenerator at1 = null;
 
     @Override
@@ -29,7 +27,6 @@ public class MainActivity extends ActionBarActivity {
         t = new Test();
         //code added : Pardeep
         //creating the observer object to collect data
-       // external_observer = new ObserverCPU("CPU", "CPU-observation-log");
         at1 = AttributeGenerator.getInstance();
 
     }
@@ -84,20 +81,20 @@ public class MainActivity extends ActionBarActivity {
             if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
                 System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
                 at1.addAttributeList((((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
-                //at1.addAttributeList("test");
-                //external_observer.startTest();
             }
-
-
-
             t.start_test();
             at1.prepareAttributes();
 
         } else {
 
             t.halt_execution();
-            //external_observer.stopTest();
-            at1.emptyAttributeList();
+
+            //Just in case if you want to stop the benchmarks but not the capturing part.
+            if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
+                System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
+                at1.emptyAttributeList();
+            }
+
 
         }
     }
