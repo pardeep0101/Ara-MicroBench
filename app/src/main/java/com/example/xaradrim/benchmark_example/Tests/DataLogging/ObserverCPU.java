@@ -69,7 +69,7 @@ public class ObserverCPU extends ObserverTemplate {
     }
 
     /*
-    This contructor could be used to create objects binded with "AttributeGenerator" object
+    This contructor could be used to create objects binded with "AttributeGenerator" objec
      */
     public ObserverCPU(manageObservers ob1, String name) {
         this.ob1 = ob1;
