@@ -1,8 +1,13 @@
 package com.example.xaradrim.benchmark_example;
 
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,10 +33,35 @@ public class MainActivity extends ActionBarActivity {
         //code added : Pardeep
         //creating the observer object to collect data
         at1 = AttributeGenerator.getInstance();
+        String device_manufacturer = Build.MANUFACTURER;
+        String device_model = Build.MODEL;
+
+        System.out.println(device_manufacturer+" -> "+ device_model);
+        if(device_manufacturer.contains("motorola")){
+
+            Intent intent = getIntent();//"ACTION_BATTERY_CHANGED"
+
+            String id = intent.getStringExtra(BatteryManager.EXTRA_VOLTAGE);
+            System.out.println(id);
+
+//
+//                (this).registerReceiver(this.btr, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+//
+        }
 
     }
 
-    @Override
+    private BroadcastReceiver btr = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            int  voltage= intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE,0);
+            System.out.println("vol "+ voltage);
+
+        }
+    };
+
+            @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);

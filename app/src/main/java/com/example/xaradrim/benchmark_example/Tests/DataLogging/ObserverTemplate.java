@@ -12,5 +12,6 @@ public abstract class ObserverTemplate implements AttributeObserver, Runnable  {
     abstract public void startObservation();
 
 
+
 }
 
