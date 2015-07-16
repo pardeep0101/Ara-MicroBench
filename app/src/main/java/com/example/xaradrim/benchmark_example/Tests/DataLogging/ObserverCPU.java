@@ -168,12 +168,10 @@ public class ObserverCPU extends ObserverTemplate {
         getApplicationUsedMemorySize();
         getSystemUsedMemorySize();
 
-
         //getCoreFrequency();
 
-
         // CPU core usage in percentage
-        readCoreUsage();
+        readCoreUsage(); //takes 200 ms for each core.
         writeToFile();
 
 
@@ -197,7 +195,6 @@ public class ObserverCPU extends ObserverTemplate {
     public void getCPUStat_ADB() {
 
         try {
-            //process = Runtime.getRuntime().exec(samsung_Voltage_now + "  " + samsung_Current_now);
             reader = new RandomAccessFile(samsung_Voltage_now,"r");
             s=reader.readLine();
             volt = (Double.parseDouble(s) / 1000000);
@@ -205,7 +202,7 @@ public class ObserverCPU extends ObserverTemplate {
             s=reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-            System.out.println("Current(microAMP) -> " + curr + " Power(picowatts/Second) ->" + power + " \n");
+            //System.out.println("Current(microAMP) -> " + curr + " Power(picowatts/Second) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -273,9 +270,9 @@ public class ObserverCPU extends ObserverTemplate {
         int i = 0;
         while (i < 8) {
             icore[i] = (readCore(i) * 100);
-            //System.out.println("usage:" + i + " ->" + icore);//readUsage());
             i += 1;
         }
+        //System.out.println("usage: + i +  ->" + icore[0]);//readUsage());
         count++;
     }
 
@@ -288,23 +285,17 @@ public class ObserverCPU extends ObserverTemplate {
                 reader.readLine();
             }
             String load = reader.readLine();
-
-
             if (load.contains("cpu")) {
                 String[] toks = load.split(" +");
-
-
                 long work1 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
                 long total1 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
                         Long.parseLong(toks[4]) + Long.parseLong(toks[5])
                         + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-
                 try {
 
                     Thread.sleep(200);
                 } catch (Exception e) {
                 }
-
                 reader.seek(0);
                 //skip to the line we need
                 for (int ii = 0; ii < i + 1; ++ii) {
