@@ -333,10 +333,10 @@ public class ObserverCPU extends ObserverTemplate {
         try {
             fw = new FileWriter(file.getAbsoluteFile(), true);
             bw = new BufferedWriter(fw);
-            bw.write(count + " " + volt + " " + curr + " " + power + " " + totalSize + " " + freeSize + " " + usedSize + " " + sf.trim() + " "
-                    + sf1.trim() + " " + sUsedSize + " "
-                    + icore[0] + " " + icore[1] + " " + icore[2] + " " + icore[3] + " "
-                    + icore[4] + " " + icore[5] + " " + icore[6] + " " + icore[7] + " ");
+            bw.write(count + "," + volt + "," + curr + "," + power + "," + totalSize + "," + freeSize + "," + usedSize + "," + sf.trim() + ","
+                    + sf1.trim() + "," + sUsedSize + ","
+                    + icore[0] + "," + icore[1] + "," + icore[2] + "," + icore[3] + ","
+                    + icore[4] + "," + icore[5] + "," + icore[6] + "," + icore[7] + " ");
             bw.newLine();
             bw.close();
         } catch (Exception e) {
