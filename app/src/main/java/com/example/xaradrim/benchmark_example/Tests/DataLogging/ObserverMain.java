@@ -17,58 +17,53 @@ import java.text.ParsePosition;
 
 // moto- via API
 // Samsung s6 both via API and ADB
-// nexus s via ADB but from inside app only
+// nexus s via ADB but from inside app only Voltage
 
 /**
  * Created by Pardeep on 6/26/15.
  * Example CPU-observer for our CPU-benchmark
  */
-public class ObserverCPU extends ObserverTemplate {
+public class ObserverMain extends ObserverTemplate {
 
     private static int count = 0;
     private static String samsung_Voltage_now = "/sys/class/power_supply/battery/voltage_now";
     private static String samsung_Current_now = "/sys/class/power_supply/battery/current_now";
     private static String samsung_Meminfo = "cat /proc/meminfo";
+    private String s = null,sf = "", sf1 = "",listenTo = "Capture data",fileName = null;
+
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
     private manageObservers ob1;
-    private String fileName = null;
     private FileWriter fw;
     private BufferedWriter bw;
     private File file;
     private double volt = 0, curr = 0, power = 0;
     private long freeSize = 0L, totalSize = 0L, usedSize = -1L, sUsedSize = -1L;
-    private String s = null;
-    private boolean isVolt = true;
-    private String listenTo = "Capture data";
-    //update coming from CPU
+
+    //update coming from update()
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
-
+    private float[] icore = new float[8];
     //strings to get
     private Process process;
     private BufferedReader bufferedReader;
-    private String sf = "", sf1 = "";
     private RandomAccessFile reader;
-    private float[] icore = new float[8];
+
 
     /*
     This constructor could be used to create object of this class and run observer directly
      */
-    public ObserverCPU(String testType, String name) {
+    public ObserverMain(String testType, String name) {
         this.fileName = name;
         this.initializieFile();
-
         this.update(testType, this.testStarted, this.testStopped);
-
-
     }
 
     /*
     This contructor could be used to create objects binded with "AttributeGenerator" objec
      */
-    public ObserverCPU(manageObservers ob1, String name) {
+    public ObserverMain(manageObservers ob1, String name) {
         this.ob1 = ob1;
         this.fileName = name;
         this.ob1.addObserver(this, listenTo);
@@ -108,12 +103,14 @@ public class ObserverCPU extends ObserverTemplate {
         this.testStopped = testStopped;
 
         if (this.testType.equalsIgnoreCase(listenTo) && this.testStarted && !(this.threadRunning)) {
+            //find the number of cores
+            numberOfCore();
+
             t = new Thread(this, "CPU_ObserverThread");
             t.start();
             System.out.println("Cpu observer: Thread started");
             this.threadRunning = true;
         }
-
         if (this.testStopped && this.threadRunning) {
             try {
                 t.join();
@@ -127,7 +124,6 @@ public class ObserverCPU extends ObserverTemplate {
     }
 
     // set of methods to run in thread
-
     // start and stop test methods could be when running this cass independltly or in Unit testing ;) .
     public void startTest() {
         this.testStarted = true;
@@ -147,6 +143,8 @@ public class ObserverCPU extends ObserverTemplate {
         System.out.println("Collecting & writing data.." + this.testStarted);
         while (this.testStarted) {
             startObservation();
+            // this sleep time is removed as 200ms sleep time is induced in readCoreUsage() for each core.
+
 //            try {
 //                Thread.sleep(1000);
 //            } catch (InterruptedException e) {
@@ -202,7 +200,7 @@ public class ObserverCPU extends ObserverTemplate {
             s=reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-            //System.out.println("Current(microAMP) -> " + curr + " Power(picowatts/Second) ->" + power + " \n");
+            System.out.println("Current(microAMP) -> " + curr + " Power(picowatts/Second) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -249,30 +247,28 @@ public class ObserverCPU extends ObserverTemplate {
         }
 
     }
+    private int no_of_core =0;
+    private void numberOfCore(){
+        File folder = new File("/sys/devices/system/cpu/");
+        File[] listOfFiles = folder.listFiles();
 
-    private void getCoreFrequency() {
-
-        try {
-            Long core_freq[] = new Long[7];
-            for (int i = 0; i < 8; i++) {
-                reader = new RandomAccessFile("/sys/devices/system/cpu/cpu" + i + "/cpufreq/cpuinfo_max_freq", "r");
-                core_freq[i] = Long.parseLong(reader.readLine());
-                System.out.println(i + "  ->" + core_freq[i]);
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < listOfFiles.length; i++) {
+          if (listOfFiles[i].isDirectory()) {
+              if(listOfFiles[i].getName().contains("cpu"+i)){
+                //System.out.println("Directory " + listOfFiles[i].getName());
+                  no_of_core+=1;
+              }
+          }
         }
     }
 
     // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
     private void readCoreUsage() {
-        int i = 0;
-        while (i < 8) {
+        int i=0;
+        while (i<no_of_core) {
             icore[i] = (readCore(i) * 100);
             i += 1;
         }
-        //System.out.println("usage: + i +  ->" + icore[0]);//readUsage());
         count++;
     }
 
@@ -334,9 +330,11 @@ public class ObserverCPU extends ObserverTemplate {
             fw = new FileWriter(file.getAbsoluteFile(), true);
             bw = new BufferedWriter(fw);
             bw.write(count + "," + volt + "," + curr + "," + power + "," + totalSize + "," + freeSize + "," + usedSize + "," + sf.trim() + ","
-                    + sf1.trim() + "," + sUsedSize + ","
-                    + icore[0] + "," + icore[1] + "," + icore[2] + "," + icore[3] + ","
-                    + icore[4] + "," + icore[5] + "," + icore[6] + "," + icore[7] + " ");
+                    + sf1.trim() + "," + sUsedSize );
+
+            for(int i=0;i<no_of_core;i++){
+                bw.write("," + icore[i] );
+            }
             bw.newLine();
             bw.close();
         } catch (Exception e) {

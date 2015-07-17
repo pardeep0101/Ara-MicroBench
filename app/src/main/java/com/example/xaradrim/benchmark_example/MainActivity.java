@@ -15,14 +15,13 @@ import android.widget.CheckBox;
 import android.widget.ToggleButton;
 
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
-import com.example.xaradrim.benchmark_example.Tests.DataLogging.ObserverCPU;
 import com.example.xaradrim.benchmark_example.Tests.Test;
 
 
 public class MainActivity extends ActionBarActivity {
 
     private Test t = null;
-    private ObserverCPU external_observer = null; // to run observer separately
+   // private ObserverMain external_observer = null; // to run observer separately
     AttributeGenerator at1 = null;
 
     @Override
@@ -30,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         t = new Test();
+
         //code added : Pardeep
         //creating the observer object to collect data
         at1 = AttributeGenerator.getInstance();
@@ -37,17 +37,17 @@ public class MainActivity extends ActionBarActivity {
         String device_model = Build.MODEL;
 
         System.out.println(device_manufacturer+" -> "+ device_model);
-        if(device_manufacturer.contains("motorola")){
-
-            Intent intent = getIntent();//"ACTION_BATTERY_CHANGED"
-
-            String id = intent.getStringExtra(BatteryManager.EXTRA_VOLTAGE);
-            System.out.println(id);
-
+//        if(device_manufacturer.contains("motorola")){
 //
-//                (this).registerReceiver(this.btr, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+//            Intent intent = getIntent();//"ACTION_BATTERY_CHANGED"
 //
-        }
+//            String id = intent.getStringExtra(BatteryManager.EXTRA_VOLTAGE);
+//            System.out.println(id);
+//
+////
+////                (this).registerReceiver(this.btr, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+////
+//        }
 
     }
 
@@ -109,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
             //Code added:Pardeep
             // check box controller for data capturing
             if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
-                System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
+               // System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
                 at1.addAttributeList((((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
             }
             t.start_test();
@@ -121,7 +121,7 @@ public class MainActivity extends ActionBarActivity {
 
             //Just in case if you want to stop the benchmarks but not the capturing part.
             if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
-                System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
+                // System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
                 at1.emptyAttributeList();
             }
 

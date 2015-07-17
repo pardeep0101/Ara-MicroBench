@@ -1,10 +1,8 @@
 package com.example.xaradrim.benchmark_example.Tests.DataLogging;
 
-import java.util.ArrayList;
-
-import android.os.Build;
 import android.os.Build.VERSION;
-import 	android.os.Build.VERSION_CODES;
+
+import java.util.ArrayList;
 
 /**
  * Created by Pardeep on 7/2/15.
@@ -34,7 +32,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
         return attributeGenerator;
     }
     private void initializeObserver(){
-        ObserverTemplate cpu = new ObserverCPU(this, "Attributes-CPU-observation-log");
+        ObserverTemplate cpu = new ObserverMain(this, "Attributes-CPU-observation-log");
         //ObserverTemplate mem = new ObserverMemory(this,"Attributes-MEM-observation-log");
     }
 
