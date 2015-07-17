@@ -160,11 +160,11 @@ public class ObserverMain extends ObserverTemplate {
 
         if (MainActivity.phoneType.contains("moto")) {
             //to get CPU stat i.e volt and current now via API
-            getCPUStat_AAPI();
+            getPowerStat_AAPI();
 
         } else if (MainActivity.phoneType.contains("samsung")) {
             //to get CPU stat i.e volt and current now via ADB
-            getCPUStat_ADB();
+            getPowerStat_ADB();
         } else {
 
             // System.out.println("No CPU stat data for Nexus ");
@@ -189,7 +189,7 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void getCPUStat_AAPI() {
+    public void getPowerStat_AAPI() {
 
 
         BatteryManager b = new BatteryManager();
@@ -202,7 +202,7 @@ public class ObserverMain extends ObserverTemplate {
         }
     }
 
-    public void getCPUStat_ADB() {
+    public void getPowerStat_ADB() {
 
         try {
             reader = new RandomAccessFile(samsung_Voltage_now, "r");
