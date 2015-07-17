@@ -1,5 +1,7 @@
 package com.example.xaradrim.benchmark_example.Tests.DataLogging;
 
+import com.example.xaradrim.benchmark_example.MainActivity;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -64,7 +66,7 @@ public class ObserverMemory extends ObserverTemplate{
     }
 
     @Override
-    public void update(String testType, boolean testStarted, boolean testStopped) {
+    public void update(String testType, boolean testStarted, boolean testStopped, MainActivity ma) {
 
         this.testType = testType;
         this.testStarted = testStarted;
