@@ -1,9 +1,8 @@
 package com.example.xaradrim.benchmark_example;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +22,8 @@ public class MainActivity extends ActionBarActivity {
     private Test t = null;
    // private ObserverMain external_observer = null; // to run observer separately
     AttributeGenerator at1 = null;
-
+    private String device_manufacturer, device_model;
+    public static String phoneType = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,35 +33,34 @@ public class MainActivity extends ActionBarActivity {
         //code added : Pardeep
         //creating the observer object to collect data
         at1 = AttributeGenerator.getInstance();
-        String device_manufacturer = Build.MANUFACTURER;
-        String device_model = Build.MODEL;
+
+        device_manufacturer = Build.MANUFACTURER;
+        device_model = Build.MODEL;
 
         System.out.println(device_manufacturer+" -> "+ device_model);
-//        if(device_manufacturer.contains("motorola")){
-//
-//            Intent intent = getIntent();//"ACTION_BATTERY_CHANGED"
-//
-//            String id = intent.getStringExtra(BatteryManager.EXTRA_VOLTAGE);
-//            System.out.println(id);
-//
-////
-////                (this).registerReceiver(this.btr, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-////
-//        }
+        if(device_manufacturer.contains("motorola")){
+            phoneType="moto";
+        }
+        if(device_manufacturer.contains("samsung") && device_model.contains("Nexus S")){
+            phoneType="nexus";
+        }
+        if(device_manufacturer.contains("samsung")){
+            phoneType="samsung";
+        }
+        }
 
+
+
+
+    public int getVoltage()
+    {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent b = this.registerReceiver(null, ifilter);
+        return b.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
     }
 
-    private BroadcastReceiver btr = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
 
-            int  voltage= intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE,0);
-            System.out.println("vol "+ voltage);
-
-        }
-    };
-
-            @Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -113,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
                 at1.addAttributeList((((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
             }
             t.start_test();
-            at1.prepareAttributes();
+            at1.prepareAttributes(this);
 
         } else {
 

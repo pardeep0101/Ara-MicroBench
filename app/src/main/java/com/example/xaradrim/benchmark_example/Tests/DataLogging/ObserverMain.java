@@ -5,6 +5,8 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
 
+import com.example.xaradrim.benchmark_example.MainActivity;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,11 +31,10 @@ public class ObserverMain extends ObserverTemplate {
     private static String samsung_Voltage_now = "/sys/class/power_supply/battery/voltage_now";
     private static String samsung_Current_now = "/sys/class/power_supply/battery/current_now";
     private static String samsung_Meminfo = "cat /proc/meminfo";
-    private String s = null,sf = "", sf1 = "",listenTo = "Capture data",fileName = null;
-
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
+    private String s = null, sf = "", sf1 = "", listenTo = "Capture data", fileName = null;
     private manageObservers ob1;
     private FileWriter fw;
     private BufferedWriter bw;
@@ -45,11 +46,13 @@ public class ObserverMain extends ObserverTemplate {
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
     private float[] icore = new float[8];
+    private int no_of_core = 0;
     //strings to get
     private Process process;
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
 
+    private MainActivity ma;
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -57,7 +60,7 @@ public class ObserverMain extends ObserverTemplate {
     public ObserverMain(String testType, String name) {
         this.fileName = name;
         this.initializieFile();
-        this.update(testType, this.testStarted, this.testStopped);
+        this.update(testType, this.testStarted, this.testStopped, this.ma);
     }
 
     /*
@@ -96,16 +99,15 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     @Override
-    public void update(String testType, boolean testStarted, boolean testStopped) {
+    public void update(String testType, boolean testStarted, boolean testStopped, MainActivity ma) {
         //System.out.println("parameteres rec:" + this.testType + " " + this.testStarted + " " + this.testStopped);
         this.testType = testType;
         this.testStarted = testStarted;
         this.testStopped = testStopped;
-
+        this.ma = ma;
         if (this.testType.equalsIgnoreCase(listenTo) && this.testStarted && !(this.threadRunning)) {
             //find the number of cores
             numberOfCore();
-
             t = new Thread(this, "CPU_ObserverThread");
             t.start();
             System.out.println("Cpu observer: Thread started");
@@ -128,13 +130,13 @@ public class ObserverMain extends ObserverTemplate {
     public void startTest() {
         this.testStarted = true;
         this.testStopped = false;
-        this.update(this.testType, this.testStarted, this.testStopped);
+        this.update(this.testType, this.testStarted, this.testStopped, this.ma);
     }
 
     public void stopTest() {
         this.testStarted = false;
         this.testStopped = true;
-        this.update(this.testType, this.testStarted, this.testStopped);
+        this.update(this.testType, this.testStarted, this.testStopped, this.ma);
     }
 
     @Override
@@ -156,11 +158,22 @@ public class ObserverMain extends ObserverTemplate {
     @Override
     public void startObservation() {
 
-        //to get CPU stat i.e volt and current now via ADB
-        getCPUStat_ADB();
+        if (MainActivity.phoneType.contains("moto")) {
+            //to get CPU stat i.e volt and current now via API
+            getPowerStat_AAPI();
 
-        //to get CPU stat i.e volt and current now via API
-        //getCPUStat_AAPI();
+        } else if (MainActivity.phoneType.contains("samsung")) {
+            //to get CPU stat i.e volt and current now via ADB
+            getPowerStat_ADB();
+        } else {
+
+            // System.out.println("No CPU stat data for Nexus ");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         //memory usage of app and system
         getApplicationUsedMemorySize();
@@ -176,31 +189,30 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void getCPUStat_AAPI() {
+    public void getPowerStat_AAPI() {
 
 
         BatteryManager b = new BatteryManager();
 
         {
-            long current = b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
-            long power = b.getLongProperty(BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE);
-
-
-            System.out.println("Current(microAMP) : " + current + " Power(nanowatts/hour) : " + power + " \n");
+            curr = ((Double.parseDouble(Integer.toString((b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW))))) / 1000000);
+            volt = ((Double.parseDouble(Integer.toString(ma.getVoltage()))) / 1000);
+            power = curr * volt;
+            System.out.println("Current(microAMP) : " + curr + " Power(W/Sec) : " + power + " \n");
         }
     }
 
-    public void getCPUStat_ADB() {
+    public void getPowerStat_ADB() {
 
         try {
-            reader = new RandomAccessFile(samsung_Voltage_now,"r");
-            s=reader.readLine();
+            reader = new RandomAccessFile(samsung_Voltage_now, "r");
+            s = reader.readLine();
             volt = (Double.parseDouble(s) / 1000000);
-            reader = new RandomAccessFile(samsung_Current_now,"r");
-            s=reader.readLine();
+            reader = new RandomAccessFile(samsung_Current_now, "r");
+            s = reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-            System.out.println("Current(microAMP) -> " + curr + " Power(picowatts/Second) ->" + power + " \n");
+            System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -247,28 +259,31 @@ public class ObserverMain extends ObserverTemplate {
         }
 
     }
-    private int no_of_core =0;
-    private void numberOfCore(){
+
+    private void numberOfCore() {
         File folder = new File("/sys/devices/system/cpu/");
         File[] listOfFiles = folder.listFiles();
 
         for (int i = 0; i < listOfFiles.length; i++) {
-          if (listOfFiles[i].isDirectory()) {
-              if(listOfFiles[i].getName().contains("cpu"+i)){
-                //System.out.println("Directory " + listOfFiles[i].getName());
-                  no_of_core+=1;
-              }
-          }
+            for (int j = 0; j < 8; j++) {
+                if (listOfFiles[i].getName().contains("cpu" + j)) {
+                    //      System.out.println("Directory " + listOfFiles[i].getName());
+                    no_of_core += 1;
+                }
+            }
+
+
         }
     }
 
     // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
     private void readCoreUsage() {
-        int i=0;
-        while (i<no_of_core) {
+        int i = 0;
+        while (i < no_of_core) {
             icore[i] = (readCore(i) * 100);
             i += 1;
         }
+        System.out.println("core usage" + icore[0]);
         count++;
     }
 
@@ -330,10 +345,10 @@ public class ObserverMain extends ObserverTemplate {
             fw = new FileWriter(file.getAbsoluteFile(), true);
             bw = new BufferedWriter(fw);
             bw.write(count + "," + volt + "," + curr + "," + power + "," + totalSize + "," + freeSize + "," + usedSize + "," + sf.trim() + ","
-                    + sf1.trim() + "," + sUsedSize );
+                    + sf1.trim() + "," + sUsedSize);
 
-            for(int i=0;i<no_of_core;i++){
-                bw.write("," + icore[i] );
+            for (int i = 0; i < no_of_core; i++) {
+                bw.write("," + icore[i]);
             }
             bw.newLine();
             bw.close();

@@ -2,6 +2,8 @@ package com.example.xaradrim.benchmark_example.Tests.DataLogging;
 
 import android.os.Build.VERSION;
 
+import com.example.xaradrim.benchmark_example.MainActivity;
+
 import java.util.ArrayList;
 
 /**
@@ -13,7 +15,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
 
     private static AttributeGenerator attributeGenerator = new AttributeGenerator();
 
-
+    private MainActivity ma ;
     private String observeType;
     private boolean observeStarted =false, observeStopped=false;
     private int apiLevel = 0;
@@ -55,7 +57,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
         System.out.println(this.apiLevel);
     }
 
-    public void prepareAttributes(){
+    public void prepareAttributes(MainActivity ma){
         for(int i=0;i<currentObserver.size();i++) {
             for(int j =0; j<observerTypeList.size();j++) {
                 if (currentObserver.get(i).contains(observerTypeList.get(j))) {
@@ -63,7 +65,8 @@ public class AttributeGenerator implements Runnable, manageObservers{
                     this.observeType = observerTypeList.get(j);
                     this.observeStarted = true;
                     this.observeStopped = false;
-                    System.out.println(this.observeType + " " + this.observeStarted + " " + this.observeStopped);
+                    this.ma = ma;
+                    System.out.println(this.observeType + " " + this.observeStarted + " " + this.observeStopped );
                     notifyObserver();
                 } else {
                     //System.out.println("observer for such is not available");
@@ -73,10 +76,6 @@ public class AttributeGenerator implements Runnable, manageObservers{
 
 
     }
-
-
-
-
 
     @Override
     public void run() {
@@ -103,7 +102,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
     @Override
     public void notifyObserver() {
         for(AttributeObserver to: this.tObserve){
-            to.update(this.observeType,this.observeStarted, this.observeStopped);
+            to.update(this.observeType,this.observeStarted, this.observeStopped, this.ma);
         }
     }
 }
