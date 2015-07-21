@@ -144,9 +144,10 @@ public class ObserverMain extends ObserverTemplate {
 
         System.out.println("Collecting & writing data.." + this.testStarted);
         while (this.testStarted) {
+            System.out.println("Iteration number -> "+count);
             startObservation();
             // this sleep time is removed as 200ms sleep time is induced in readCoreUsage() for each core.
-
+//
 //            try {
 //                Thread.sleep(1000);
 //            } catch (InterruptedException e) {
@@ -161,15 +162,21 @@ public class ObserverMain extends ObserverTemplate {
         if (MainActivity.phoneType.contains("moto")) {
             //to get CPU stat i.e volt and current now via API
             getPowerStat_AAPI();
+            try {
+
+                Thread.sleep(200 * 4);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         } else if (MainActivity.phoneType.contains("samsung")) {
             //to get CPU stat i.e volt and current now via ADB
             getPowerStat_ADB();
-        } else {
+        } else if(MainActivity.phoneType.equalsIgnoreCase("nexus")){
 
             // System.out.println("No CPU stat data for Nexus ");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200 * 7);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -198,7 +205,7 @@ public class ObserverMain extends ObserverTemplate {
             curr = ((Double.parseDouble(Integer.toString((b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW))))) / 1000000);
             volt = ((Double.parseDouble(Integer.toString(ma.getVoltage()))) / 1000);
             power = curr * volt;
-            System.out.println("Current(microAMP) : " + curr + " Power(W/Sec) : " + power + " \n");
+          //  System.out.println("Current(microAMP) : " + curr + " Power(W/Sec) : " + power + " \n");
         }
     }
 
@@ -212,7 +219,7 @@ public class ObserverMain extends ObserverTemplate {
             s = reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-            System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
+            //System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -283,7 +290,7 @@ public class ObserverMain extends ObserverTemplate {
             icore[i] = (readCore(i) * 100);
             i += 1;
         }
-        System.out.println("core usage" + icore[0]);
+        //System.out.println("core usage" + icore[0]);
         count++;
     }
 
