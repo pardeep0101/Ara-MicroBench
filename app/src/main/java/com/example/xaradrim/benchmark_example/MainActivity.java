@@ -19,11 +19,12 @@ import com.example.xaradrim.benchmark_example.Tests.Test;
 
 public class MainActivity extends ActionBarActivity {
 
-    private Test t = null;
+    public static String phoneType = "";
    // private ObserverMain external_observer = null; // to run observer separately
     AttributeGenerator at1 = null;
+    private Test t = null;
     private String device_manufacturer, device_model;
-    public static String phoneType = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,15 +37,14 @@ public class MainActivity extends ActionBarActivity {
 
         device_manufacturer = Build.MANUFACTURER;
         device_model = Build.MODEL;
-
-        System.out.println(device_manufacturer+" -> "+ device_model);
-        if(device_manufacturer.contains("motorola")){
+        if(device_manufacturer.equalsIgnoreCase("motorola")){
             phoneType="moto";
         }
-        if(device_manufacturer.contains("samsung") && device_model.contains("Nexus S")){
+        if(device_model.equalsIgnoreCase("Nexus S 4G")){
             phoneType="nexus";
+
         }
-        if(device_manufacturer.contains("samsung")){
+        if(device_manufacturer.equalsIgnoreCase("Samsung") && !(device_model.equalsIgnoreCase("Nexus S 4G"))){
             phoneType="samsung";
         }
         }
