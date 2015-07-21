@@ -42,7 +42,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
         this.currentObserver.add(observersName);
     }
     public void emptyAttributeList(){
-        System.out.println("stopping attributes");
+        //System.out.println("stopping attributes");
 
         for(int i=0;i<observerTypeList.size();i++) {
             this.observeType=observerTypeList.get(i);this.observeStarted=false;this.observeStopped=true;
@@ -61,12 +61,12 @@ public class AttributeGenerator implements Runnable, manageObservers{
         for(int i=0;i<currentObserver.size();i++) {
             for(int j =0; j<observerTypeList.size();j++) {
                 if (currentObserver.get(i).contains(observerTypeList.get(j))) {
-                    System.out.println("run observer for -> " + observerTypeList.get(j));
+                    //System.out.println("run observer for -> " + observerTypeList.get(j));
                     this.observeType = observerTypeList.get(j);
                     this.observeStarted = true;
                     this.observeStopped = false;
                     this.ma = ma;
-                    System.out.println(this.observeType + " " + this.observeStarted + " " + this.observeStopped );
+                   // System.out.println(this.observeType + " " + this.observeStarted + " " + this.observeStopped );
                     notifyObserver();
                 } else {
                     //System.out.println("observer for such is not available");

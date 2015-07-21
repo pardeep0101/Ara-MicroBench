@@ -61,6 +61,7 @@ public class ObserverMain extends ObserverTemplate {
         this.fileName = name;
         this.initializieFile();
         this.update(testType, this.testStarted, this.testStopped, this.ma);
+        this. numberOfCore();
     }
 
     /*
@@ -71,6 +72,7 @@ public class ObserverMain extends ObserverTemplate {
         this.fileName = name;
         this.ob1.addObserver(this, listenTo);
         this.initializieFile();
+        this. numberOfCore();
     }
 
     public static boolean isNumeric(String str) {
@@ -106,8 +108,7 @@ public class ObserverMain extends ObserverTemplate {
         this.testStopped = testStopped;
         this.ma = ma;
         if (this.testType.equalsIgnoreCase(listenTo) && this.testStarted && !(this.threadRunning)) {
-            //find the number of cores
-            numberOfCore();
+
             t = new Thread(this, "CPU_ObserverThread");
             t.start();
             System.out.println("Cpu observer: Thread started");
@@ -144,7 +145,7 @@ public class ObserverMain extends ObserverTemplate {
 
         System.out.println("Collecting & writing data.." + this.testStarted);
         while (this.testStarted) {
-            System.out.println("Iteration number -> "+count);
+            //System.out.println("Iteration number -> "+count);
             startObservation();
             // this sleep time is removed as 200ms sleep time is induced in readCoreUsage() for each core.
 //
