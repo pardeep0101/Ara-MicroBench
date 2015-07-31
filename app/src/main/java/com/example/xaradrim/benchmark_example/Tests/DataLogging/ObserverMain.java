@@ -114,7 +114,7 @@ public class ObserverMain extends ObserverTemplate {
         this.testType = testType;
         this.testStarted = testStarted;
         this.testStopped = testStopped;
-        this.ma = null;
+        this.ma = ma;
         if (this.testType.equalsIgnoreCase(listenTo) && this.testStarted && !(this.threadRunning)) {
             t = new Thread(this, "CPU_ObserverThread");
             t.start();
