@@ -34,7 +34,7 @@ public class ObserverMain extends ObserverTemplate {
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
-    CoreUtilization cu1[] = new CoreUtilization[8];
+//    CoreUtilization cu1[] = new CoreUtilization[8];
     private String s = null, sf = "", sf1 = "", listenTo = "Capture data", fileName = null;
     private manageObservers ob1;
     private FileWriter fw;
@@ -194,7 +194,7 @@ public class ObserverMain extends ObserverTemplate {
 
         // CPU core usage in percentage
 //        readCoreUsage(); //takes 200 ms for each core.
-        readCoreUsage_test();
+        //readCoreUsage_test();
         writeToFile();
 
 
@@ -298,26 +298,26 @@ public class ObserverMain extends ObserverTemplate {
         count++;
     }
 
-    private void readCoreUsage_test() {
-        int i = 0;
-
-        while(i< no_of_core) {
-            cu1[i] = new CoreUtilization(i);
-            new Thread(cu1[i]).start();
-            i+=1;
-        }
-        i=0;
-        while (i < no_of_core) {
-            icore[i] = cu1[i].getCoreUtilization();
-        }
-        System.out.println("core usage" + icore[0]);
-        try {
-            Thread.sleep(1000);
-            System.out.println("finished one iteration...");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void readCoreUsage_test() {
+//        int i = 0;
+//
+//        while(i< no_of_core) {
+//            cu1[i] = new CoreUtilization(i);
+//            new Thread(cu1[i]).start();
+//            i+=1;
+//        }
+//        i=0;
+//        while (i < no_of_core) {
+//            icore[i] = cu1[i].getCoreUtilization();
+//        }
+//        System.out.println("core usage" + icore[0]);
+//        try {
+//            Thread.sleep(1000);
+//            System.out.println("finished one iteration...");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     //returns the core usage of ith core.
     private float readCore(int i) {
