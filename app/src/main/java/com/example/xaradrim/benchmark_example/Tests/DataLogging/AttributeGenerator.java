@@ -34,12 +34,18 @@ public class AttributeGenerator implements Runnable, manageObservers{
         return attributeGenerator;
     }
     private void initializeObserver(){
+
         ObserverTemplate cpu = new ObserverMain(this, "Attributes-CPU-observation-log");
         //ObserverTemplate mem = new ObserverMemory(this,"Attributes-MEM-observation-log");
     }
 
     public void addAttributeList(String observersName){
         this.currentObserver.add(observersName);
+//        try {
+//            pin.main1("runnn");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
     public void emptyAttributeList(){
         //System.out.println("stopping attributes");

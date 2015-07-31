@@ -34,6 +34,7 @@ public class ObserverMain extends ObserverTemplate {
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
+    CoreUtilization cu1[] = new CoreUtilization[8];
     private String s = null, sf = "", sf1 = "", listenTo = "Capture data", fileName = null;
     private manageObservers ob1;
     private FileWriter fw;
@@ -41,7 +42,6 @@ public class ObserverMain extends ObserverTemplate {
     private File file;
     private double volt = 0, curr = 0, power = 0;
     private long freeSize = 0L, totalSize = 0L, usedSize = -1L, sUsedSize = -1L;
-
     //update coming from update()
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
@@ -51,8 +51,7 @@ public class ObserverMain extends ObserverTemplate {
     private Process process;
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
-
-    private MainActivity ma;
+    private MainActivity ma=null;
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -143,7 +142,7 @@ public class ObserverMain extends ObserverTemplate {
     @Override
     public void run() {
 
-        System.out.println("Collecting & writing data.." + this.testStarted);
+        //System.out.println("Collecting & writing data.." + this.testStarted);
         while (this.testStarted) {
             //System.out.println("Iteration number -> "+count);
             startObservation();
@@ -160,29 +159,33 @@ public class ObserverMain extends ObserverTemplate {
     @Override
     public void startObservation() {
 
-        if (MainActivity.phoneType.contains("moto")) {
-            //to get CPU stat i.e volt and current now via API
-            getPowerStat_AAPI();
-            try {
+        if(ma!=null) {
+            if (MainActivity.phoneType.contains("moto")) {
+                //to get CPU stat i.e volt and current now via API
+                getPowerStat_AAPI();
+                try {
 
-                Thread.sleep(200 * 4);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                    Thread.sleep(200 * 4);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-        } else if (MainActivity.phoneType.contains("samsung")) {
-            //to get CPU stat i.e volt and current now via ADB
-            getPowerStat_ADB();
-        } else if(MainActivity.phoneType.equalsIgnoreCase("nexus")){
+            } else if (MainActivity.phoneType.contains("samsung")) {
+                //to get CPU stat i.e volt and current now via ADB
+                getPowerStat_ADB();
+            } else if (MainActivity.phoneType.equalsIgnoreCase("nexus")) {
 
-            // System.out.println("No CPU stat data for Nexus ");
-            try {
-                Thread.sleep(200 * 7);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                // System.out.println("No CPU stat data for Nexus ");
+                try {
+                    Thread.sleep(200 * 7);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
+        else{
+            getPowerStat_ADB();
+        }
         //memory usage of app and system
         getApplicationUsedMemorySize();
         getSystemUsedMemorySize();
@@ -190,7 +193,8 @@ public class ObserverMain extends ObserverTemplate {
         //getCoreFrequency();
 
         // CPU core usage in percentage
-        readCoreUsage(); //takes 200 ms for each core.
+//        readCoreUsage(); //takes 200 ms for each core.
+        readCoreUsage_test();
         writeToFile();
 
 
@@ -220,7 +224,7 @@ public class ObserverMain extends ObserverTemplate {
             s = reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-            //System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
+            System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -279,20 +283,40 @@ public class ObserverMain extends ObserverTemplate {
                     no_of_core += 1;
                 }
             }
-
-
         }
     }
 
-    // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
     private void readCoreUsage() {
         int i = 0;
         while (i < no_of_core) {
             icore[i] = (readCore(i) * 100);
             i += 1;
         }
-        //System.out.println("core usage" + icore[0]);
+        for(float j : icore){
+            System.out.println("core usage" + j);
+        }
         count++;
+    }
+
+    private void readCoreUsage_test() {
+        int i = 0;
+
+        while(i< no_of_core) {
+            cu1[i] = new CoreUtilization(i);
+            new Thread(cu1[i]).start();
+            i+=1;
+        }
+        i=0;
+        while (i < no_of_core) {
+            icore[i] = cu1[i].getCoreUtilization();
+        }
+        System.out.println("core usage" + icore[0]);
+        try {
+            Thread.sleep(1000);
+            System.out.println("finished one iteration...");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     //returns the core usage of ith core.
