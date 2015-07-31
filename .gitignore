@@ -4,3 +4,9 @@
 /.idea/libraries
 .DS_Store
 /build
+/build
+.xml
+.iml
+README.md
+!activity_main.xml
+!*/activity_main.xml
