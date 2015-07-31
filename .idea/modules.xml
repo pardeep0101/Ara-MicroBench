@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Ara-MicroBench.iml" filepath="$PROJECT_DIR$/Ara-MicroBench.iml" />
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/Ara-MicroBench.iml" filepath="$PROJECT_DIR$/Ara-MicroBench.iml" />
+=======
+>>>>>>> on-qa
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

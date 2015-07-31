@@ -36,7 +36,7 @@ public class AttributeGenerator implements Runnable, manageObservers{
     private void initializeObserver(){
 
         ObserverTemplate cpu = new ObserverMain(this, "Attributes-CPU-observation-log");
-        //ObserverTemplate mem = new ObserverMemory(this,"Attributes-MEM-observation-log");
+
     }
 
     public void addAttributeList(String observersName){
