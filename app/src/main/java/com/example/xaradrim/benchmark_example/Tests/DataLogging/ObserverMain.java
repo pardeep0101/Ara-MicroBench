@@ -52,7 +52,7 @@ public class ObserverMain extends ObserverTemplate {
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
 
-    private MainActivity ma =null;
+    private MainActivity ma = null;
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -60,7 +60,14 @@ public class ObserverMain extends ObserverTemplate {
     public ObserverMain(String testType, String name) {
         this.fileName = name;
         this.initializieFile();
-        this.update(testType, this.testStarted, this.testStopped, this.ma);
+
+        //if there is a need to run this class as a thread and get a file we can init update method from here
+        //or we can imply comment this line and call each method independtly
+
+        //this.update(testType, this.testStarted, this.testStopped, this.ma);
+
+        //find the number of cores
+        this.numberOfCore();
     }
 
     /*
@@ -71,6 +78,9 @@ public class ObserverMain extends ObserverTemplate {
         this.fileName = name;
         this.ob1.addObserver(this, listenTo);
         this.initializieFile();
+
+        //find the number of cores
+        this.numberOfCore();
     }
 
     public static boolean isNumeric(String str) {
@@ -106,8 +116,6 @@ public class ObserverMain extends ObserverTemplate {
         this.testStopped = testStopped;
         this.ma = null;
         if (this.testType.equalsIgnoreCase(listenTo) && this.testStarted && !(this.threadRunning)) {
-            //find the number of cores
-            numberOfCore();
             t = new Thread(this, "CPU_ObserverThread");
             t.start();
             System.out.println("Cpu observer: Thread started");
@@ -147,17 +155,17 @@ public class ObserverMain extends ObserverTemplate {
             startObservation();
             // this sleep time is removed as 200ms sleep time is induced in readCoreUsage() for each core.
 
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void startObservation() {
-        if(this.ma!=null) {
+        if (this.ma != null) {
             if (MainActivity.phoneType.contains("moto")) {
                 //to get CPU stat i.e volt and current now via API
                 getPowerStat_AAPI();
@@ -185,8 +193,7 @@ public class ObserverMain extends ObserverTemplate {
             readCoreUsage(); //takes 200 ms for each core.
             writeToFile();
 
-        }
-        else{
+        } else {
 
             //if ma is not available then no voltage can be obtained via api so need to try with adb
             getPowerStat_ADB();
@@ -226,7 +233,7 @@ public class ObserverMain extends ObserverTemplate {
             s = reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-           // System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
+            // System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -277,11 +284,11 @@ public class ObserverMain extends ObserverTemplate {
     private void numberOfCore() {
         File folder = new File("/sys/devices/system/cpu/");
         File[] listOfFiles = folder.listFiles();
-
+        no_of_core = 0;
         for (int i = 0; i < listOfFiles.length; i++) {
             for (int j = 0; j < 8; j++) {
                 if (listOfFiles[i].getName().contains("cpu" + j)) {
-                    //      System.out.println("Directory " + listOfFiles[i].getName());
+                  //  System.out.println("Directory " + listOfFiles[i].getName());
                     no_of_core += 1;
                 }
             }
