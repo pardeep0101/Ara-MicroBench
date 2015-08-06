@@ -1,20 +1,22 @@
 package com.example.xaradrim.benchmark_example.Tests;
 
+
 import android.annotation.TargetApi;
 import android.os.BatteryManager;
 import android.os.Build;
 
+
 import java.util.Random;
+
 
 /**
  * Created by MAX R. BERRIOS
  * OSCAR LABS
  * on 5/29/15.
  */
-public class Cpu  implements Testable {
-    private boolean Testing;
+public class Cpu implements Testable {
 
-
+   private boolean Testing;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -25,6 +27,7 @@ public class Cpu  implements Testable {
         BatteryManager b = new BatteryManager();
         Random r = new Random();
         this.Testing = true;
+
 
         System.out.println("Starting CPU \n");
         while (this.isTesting()) {
@@ -45,6 +48,12 @@ public class Cpu  implements Testable {
     }
 
 
+                //System.out.println("The value in number for the cpu-> " + number + "\n");
+
+            }
+
+    }
+
 
     @Override
     public void stop_test() {
@@ -55,4 +64,6 @@ public class Cpu  implements Testable {
     public boolean isTesting() {
         return this.Testing;
     }
+
+
 }
