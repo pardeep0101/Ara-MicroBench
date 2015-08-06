@@ -37,6 +37,16 @@
         android:layout_alignLeft="@+id/cpu_box"
         android:layout_alignStart="@+id/cpu_box" />
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Capture data"
+        android:id="@+id/dcapture_box"
+        android:layout_alignTop="@+id/cpu_box"
+        android:layout_alignRight="@+id/textView2"
+        android:layout_alignEnd="@+id/textView2" />
+
+
     <ToggleButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,5 +59,6 @@
         android:layout_below="@+id/memory_box"
         android:layout_alignLeft="@+id/textView2"
         android:layout_alignStart="@+id/textView2" />
+
 
 </RelativeLayout>
