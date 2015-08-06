@@ -1,10 +1,7 @@
 package com.example.xaradrim.benchmark_example.Tests;
 
 import android.app.ActivityManager;
-import android.os.Debug;
-import android.os.Parcelable;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -25,7 +22,6 @@ public class Memory implements Testable {
     public void run() {
         this.control = false;
         // just adding something else
-
         while(this.control != true){
             this.writeToMemory(this.control);
             this.make_delay();

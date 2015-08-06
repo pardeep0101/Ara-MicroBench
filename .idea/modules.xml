@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Benchmark-example.iml" filepath="$PROJECT_DIR$/Benchmark-example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Ara-MicroBench.iml" filepath="$PROJECT_DIR$/Ara-MicroBench.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>
-
