@@ -36,6 +36,8 @@ public class ObserverMain extends ObserverTemplate {
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
+    CoreUtilization [] cu1 =new CoreUtilization[8];
+    Thread [] th1 = new Thread[8];
     private String s = null, sf = "", sf1 = "", listenTo = "Capture data", fileName = null;
     private manageObservers ob1;
     private FileWriter fw;
@@ -43,7 +45,6 @@ public class ObserverMain extends ObserverTemplate {
     private File file;
     private double volt = 0, curr = 0, power = 0;
     private long freeSize = 0L, totalSize = 0L, usedSize = -1L, sUsedSize = -1L;
-
     //update coming from update()
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
@@ -55,9 +56,13 @@ public class ObserverMain extends ObserverTemplate {
     private Process process;
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
+<<<<<<< HEAD
 
 
     private Intent b;
+=======
+    private MainActivity ma = null;
+>>>>>>> multithread-work
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -196,8 +201,14 @@ public class ObserverMain extends ObserverTemplate {
             //getCoreFrequency();
 
             // CPU core usage in percentage
+<<<<<<< HEAD
             readCoreUsage(); //takes 200 ms for each core.
 
+=======
+            //readCoreUsage(); //takes 200 ms for each core.
+
+            readCoreUsage_Threadtest();
+>>>>>>> multithread-work
             writeToFile();
 
         } else {
@@ -324,26 +335,36 @@ public class ObserverMain extends ObserverTemplate {
         count++;
     }
 
-//    private void readCoreUsage_test() {
-//        int i = 0;
-//
-//        while(i< no_of_core) {
-//            cu1[i] = new CoreUtilization(i);
-//            new Thread(cu1[i]).start();
-//            i+=1;
-//        }
-//        i=0;
-//        while (i < no_of_core) {
-//            icore[i] = cu1[i].getCoreUtilization();
-//        }
-//        System.out.println("core usage" + icore[0]);
-//        try {
-//            Thread.sleep(1000);
-//            System.out.println("finished one iteration...");
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private void waitForCoreUsageThreads()
+    {
+        for (Thread core_usgae : th1)
+        {
+            try {
+                core_usgae.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void readCoreUsage_Threadtest() {
+        int i = 0;
+
+        while(i< no_of_core) {
+            cu1[i] = new CoreUtilization(i);
+            //new Thread(cu1[i]).start();
+            th1[i] = new Thread(cu1[i]);
+            th1[i].start();
+            i+=1;
+        }
+        i=0;
+        waitForCoreUsageThreads();
+        while (i < no_of_core) {
+            icore[i] = cu1[i].getCoreUtilization();
+            //System.out.println("core usage "+i +"-> "+ icore[i]);
+            i+=1;
+        }
+
+    }
 
 
 
