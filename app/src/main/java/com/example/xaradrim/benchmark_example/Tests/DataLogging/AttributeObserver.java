@@ -1,6 +1,6 @@
 package com.example.xaradrim.benchmark_example.Tests.DataLogging;
 
-import com.example.xaradrim.benchmark_example.MainActivity;
+import android.content.Intent;
 
 /**
  * Created by Pardeep  on 6/26/15.
@@ -9,5 +9,5 @@ import com.example.xaradrim.benchmark_example.MainActivity;
 public interface AttributeObserver {
 
     //Observers will recive updates/notification from form benchmarks through this method
-    public void update(String testType, boolean testStarted, boolean testStopped,MainActivity ma);
+    public void update(String testType, boolean testStarted, boolean testStopped,Intent b);
 }

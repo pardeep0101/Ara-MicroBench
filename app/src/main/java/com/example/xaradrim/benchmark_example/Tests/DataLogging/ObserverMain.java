@@ -1,6 +1,7 @@
 package com.example.xaradrim.benchmark_example.Tests.DataLogging;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
@@ -10,6 +11,7 @@ import com.example.xaradrim.benchmark_example.MainActivity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,13 +48,16 @@ public class ObserverMain extends ObserverTemplate {
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
     private float[] icore = new float[8];
+    private String[] icpuFreq = new String[8];
     private int no_of_core = 0;
+
     //strings to get
     private Process process;
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
 
-    private MainActivity ma = null;
+
+    private Intent b;
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -64,7 +69,7 @@ public class ObserverMain extends ObserverTemplate {
         //if there is a need to run this class as a thread and get a file we can init update method from here
         //or we can imply comment this line and call each method independtly
 
-        //this.update(testType, this.testStarted, this.testStopped, this.ma);
+        //this.update(testType, this.testStarted, this.testStopped, this.b);
 
         //find the number of cores
         this.numberOfCore();
@@ -109,12 +114,12 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     @Override
-    public void update(String testType, boolean testStarted, boolean testStopped, MainActivity ma) {
+    public void update(String testType, boolean testStarted, boolean testStopped, Intent b) {
         //System.out.println("parameteres rec:" + this.testType + " " + this.testStarted + " " + this.testStopped);
         this.testType = testType;
         this.testStarted = testStarted;
         this.testStopped = testStopped;
-        this.ma = ma;
+        this.b = b;
         if (this.testType.equalsIgnoreCase(listenTo) && this.testStarted && !(this.threadRunning)) {
 
             t = new Thread(this, "CPU_ObserverThread");
@@ -139,13 +144,13 @@ public class ObserverMain extends ObserverTemplate {
     public void startTest() {
         this.testStarted = true;
         this.testStopped = false;
-        this.update(this.testType, this.testStarted, this.testStopped, this.ma);
+        this.update(this.testType, this.testStarted, this.testStopped, this.b);
     }
 
     public void stopTest() {
         this.testStarted = false;
         this.testStopped = true;
-        this.update(this.testType, this.testStarted, this.testStopped, this.ma);
+        this.update(this.testType, this.testStarted, this.testStopped, this.b);
     }
 
     @Override
@@ -166,7 +171,7 @@ public class ObserverMain extends ObserverTemplate {
 
     @Override
     public void startObservation() {
-        if (this.ma != null) {
+        if (MainActivity.phoneType != null) {
             if (MainActivity.phoneType.contains("moto")) {
                 //to get CPU stat i.e volt and current now via API
                 getPowerStat_AAPI();
@@ -192,6 +197,7 @@ public class ObserverMain extends ObserverTemplate {
 
             // CPU core usage in percentage
             readCoreUsage(); //takes 200 ms for each core.
+
             writeToFile();
 
         } else {
@@ -206,6 +212,7 @@ public class ObserverMain extends ObserverTemplate {
 
             // CPU core usage in percentage
             readCoreUsage(); //takes 200 ms for each core.
+
             writeToFile();
         }
     }
@@ -218,7 +225,9 @@ public class ObserverMain extends ObserverTemplate {
 
         {
             curr = ((Double.parseDouble(Integer.toString((b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW))))) / 1000000);
-            volt = ((Double.parseDouble(Integer.toString(ma.getVoltage()))) / 1000);
+//            volt = ((Double.parseDouble(Integer.toString(ma.getVoltage()))) / 1000);
+            volt=(this.b.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1))/1000;
+
             power = curr * volt;
             //System.out.println("Current(microAMP) : " + curr + " Power(W/Sec) : " + power + " \n");
         }
@@ -234,7 +243,7 @@ public class ObserverMain extends ObserverTemplate {
             s = reader.readLine();
             curr = (Double.parseDouble(s) / 1000000);
             power = volt * curr;
-            // System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
+//             System.out.println("Current(microAMP) -> " + curr + " Power(W/Sec) ->" + power + " \n");
 
         } catch (IOException e) {
             System.out.println("IOException occured..");
@@ -303,11 +312,15 @@ public class ObserverMain extends ObserverTemplate {
         int i = 0;
         while (i < no_of_core) {
             icore[i] = (readCore(i) * 100);
+
+            readCpuFrequency(i);
             i += 1;
+
+
         }
-        for(float j : icore){
-            System.out.println("core usage" + j);
-        }
+//        for(float j : icore){
+//            System.out.println("core usage" + j);
+//        }
         count++;
     }
 
@@ -332,6 +345,24 @@ public class ObserverMain extends ObserverTemplate {
 //        }
 //    }
 
+
+
+public void readCpuFrequency(int i){
+    try {
+        String file= "/sys/devices/system/cpu/cpu";
+        file = file + i;
+        file = file+ "/cpufreq/scaling_cur_freq";
+        reader = new RandomAccessFile(file, "r");
+        s = reader.readLine();
+        icpuFreq[i]= s;
+
+    }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+    }
     //returns the core usage of ith core.
     private float readCore(int i) {
 
@@ -394,6 +425,10 @@ public class ObserverMain extends ObserverTemplate {
 
             for (int i = 0; i < no_of_core; i++) {
                 bw.write("," + icore[i]);
+            }
+
+            for (int i = 0; i < no_of_core; i++) {
+                bw.write("," + icpuFreq[i]);
             }
             bw.newLine();
             bw.close();

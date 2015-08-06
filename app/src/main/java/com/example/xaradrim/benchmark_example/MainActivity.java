@@ -3,7 +3,6 @@ package com.example.xaradrim.benchmark_example;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -24,7 +23,8 @@ public class MainActivity extends ActionBarActivity {
     AttributeGenerator at1 = null;
     private Test t = null;
     private String device_manufacturer, device_model;
-
+    private Intent b;
+    private IntentFilter ifilter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +47,14 @@ public class MainActivity extends ActionBarActivity {
         if(device_manufacturer.equalsIgnoreCase("Samsung") && !(device_model.equalsIgnoreCase("Nexus S 4G"))){
             phoneType="samsung";
         }
+
+        ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        b = this.registerReceiver(null, ifilter);
         }
 
 
 
 
-    public int getVoltage()
-    {
-        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent b = this.registerReceiver(null, ifilter);
-        return b.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
-    }
 
 
     @Override
@@ -112,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
                 at1.addAttributeList((((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
             }
             t.start_test();
-            at1.prepareAttributes(this);
+            at1.prepareAttributes(b);
 
         } else {
 
