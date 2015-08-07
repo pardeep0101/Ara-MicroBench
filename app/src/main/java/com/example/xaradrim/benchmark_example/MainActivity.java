@@ -1,6 +1,8 @@
 package com.example.xaradrim.benchmark_example;
 
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -10,21 +12,29 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
 import com.example.xaradrim.benchmark_example.Tests.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class MainActivity extends ActionBarActivity {
 
     public static String phoneType = "";
-   // private ObserverMain external_observer = null; // to run observer separately
+    // private ObserverMain external_observer = null; // to run observer separately
     AttributeGenerator at1 = null;
+    String serviceStartedAt, serviceStoppedAt;
+    TextView tv;
     private Test t = null;
     private String device_manufacturer, device_model;
-    private Intent b;
+    private Intent b, iIntent;
     private IntentFilter ifilter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,25 +47,37 @@ public class MainActivity extends ActionBarActivity {
 
         device_manufacturer = Build.MANUFACTURER;
         device_model = Build.MODEL;
-        if(device_manufacturer.equalsIgnoreCase("motorola")){
-            phoneType="moto";
+        if (device_manufacturer.equalsIgnoreCase("motorola")) {
+            phoneType = "moto";
         }
-        if(device_model.equalsIgnoreCase("Nexus S 4G")){
-            phoneType="nexus";
+        if (device_model.equalsIgnoreCase("Nexus S 4G")) {
+            phoneType = "nexus";
 
         }
-        if(device_manufacturer.equalsIgnoreCase("Samsung") && !(device_model.equalsIgnoreCase("Nexus S 4G"))){
-            phoneType="samsung";
+        if (device_manufacturer.equalsIgnoreCase("Samsung") && !(device_model.equalsIgnoreCase("Nexus S 4G"))) {
+            phoneType = "samsung";
         }
 
         ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         b = this.registerReceiver(null, ifilter);
+        tv = (TextView) findViewById(R.id.status);
+        iIntent = new Intent(this, MyService.class);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
         }
+        return false;
+    }
 
-
-
-
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,9 +103,13 @@ public class MainActivity extends ActionBarActivity {
 
     // this are Xaradrim (  my additions ) to this activity lane
     // hopping it works and doesn't explode =D
-
+    public String getSystemTime() {
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss", Locale.US);
+        return (df.format(new Date()));
+    }
 
     public void onClick(View view) {
+
 
         ToggleButton B = (ToggleButton) view.findViewById(R.id.runTest);
 
@@ -95,7 +121,7 @@ public class MainActivity extends ActionBarActivity {
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
                 //System.out.println("Im starting the cpu test");
-               t.add_test(t.make_test("cpu"));
+                t.add_test(t.make_test("cpu"));
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
@@ -105,24 +131,27 @@ public class MainActivity extends ActionBarActivity {
             //Code added:Pardeep
             // check box controller for data capturing
             if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
-               // System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
-                at1.addAttributeList((((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
+                iIntent.putExtra("ObserverType", (((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
+                iIntent.putExtras(b);
+                serviceStartedAt = getSystemTime();
+                tv.setText("Status: Started at" + serviceStartedAt);
             }
             t.start_test();
-            at1.prepareAttributes(b);
-
+            startService(iIntent);
         } else {
 
             t.halt_execution();
 
             //Just in case if you want to stop the benchmarks but not the capturing part.
             if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
-                // System.out.println("Clicked -> " + ((CheckBox) findViewById(R.id.dcapture_box)).getText());
-                at1.emptyAttributeList();
+
+                iIntent.putExtra("stopWork", true);
+                stopService(iIntent);
+                serviceStoppedAt = getSystemTime();
+                tv.setText("Status: Started at " + serviceStartedAt + "; Completed at " + serviceStoppedAt);
             }
-
-
         }
     }
-
 }
+
+

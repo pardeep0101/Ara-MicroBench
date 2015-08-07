@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -36,8 +35,8 @@ public class ObserverMain extends ObserverTemplate {
     //To run writing process as a thread. concurently to the benchmark
     Thread t;
     boolean threadRunning = false;
-    CoreUtilization [] cu1 =new CoreUtilization[8];
-    Thread [] th1 = new Thread[8];
+    CoreUtilization[] cu1 = new CoreUtilization[8];
+    Thread[] th1 = new Thread[8];
     private String s = null, sf = "", sf1 = "", listenTo = "Capture data", fileName = null;
     private manageObservers ob1;
     private FileWriter fw;
@@ -56,13 +55,10 @@ public class ObserverMain extends ObserverTemplate {
     private Process process;
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
-<<<<<<< HEAD
 
 
     private Intent b;
-=======
-    private MainActivity ma = null;
->>>>>>> multithread-work
+
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -167,7 +163,7 @@ public class ObserverMain extends ObserverTemplate {
             // this sleep time is removed as 200ms sleep time is induced in readCoreUsage() for each core.
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -201,14 +197,11 @@ public class ObserverMain extends ObserverTemplate {
             //getCoreFrequency();
 
             // CPU core usage in percentage
-<<<<<<< HEAD
-            readCoreUsage(); //takes 200 ms for each core.
 
-=======
-            //readCoreUsage(); //takes 200 ms for each core.
+//            readCoreUsage(); //takes 200 ms for each core.
 
             readCoreUsage_Threadtest();
->>>>>>> multithread-work
+
             writeToFile();
 
         } else {
@@ -222,8 +215,8 @@ public class ObserverMain extends ObserverTemplate {
             //getCoreFrequency();
 
             // CPU core usage in percentage
-            readCoreUsage(); //takes 200 ms for each core.
-
+//            readCoreUsage(); //takes 200 ms for each core.
+            readCoreUsage_Threadtest();
             writeToFile();
         }
     }
@@ -236,11 +229,9 @@ public class ObserverMain extends ObserverTemplate {
 
         {
             curr = ((Double.parseDouble(Integer.toString((b.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW))))) / 1000000);
-//            volt = ((Double.parseDouble(Integer.toString(ma.getVoltage()))) / 1000);
-            volt=(this.b.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1))/1000;
-
+            volt = (this.b.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1)) / 1000;
             power = curr * volt;
-            //System.out.println("Current(microAMP) : " + curr + " Power(W/Sec) : " + power + " \n");
+//            System.out.println("Current(microAMP) : " + curr + " Power(W/Sec) : " + power + " \n");
         }
     }
 
@@ -259,6 +250,12 @@ public class ObserverMain extends ObserverTemplate {
         } catch (IOException e) {
             System.out.println("IOException occured..");
             e.printStackTrace();
+        }finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -275,47 +272,41 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     public void getSystemUsedMemorySize() {
-
         try {
-            process = Runtime.getRuntime().exec(samsung_Meminfo);
-            bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while ((s = bufferedReader.readLine()) != null) {
-                if (s.contains("MemTotal:")) {
-                    for (String ss : s.split(" ")) {
-                        if (isNumeric(ss)) {
-                            sf = ss;
-                        }
-                    }
-                }
-                if (s.contains("MemFree:")) {
-                    for (String ss : s.split(" ")) {
-                        if (isNumeric(ss)) {
-                            sf1 = ss;
-                        }
-                    }
-                }
-            }
+            reader = new RandomAccessFile("/proc/meminfo", "r");
+            s =reader.readLine();
+            String [] ss = s.split(" +");
+            sf=ss[1];
+            s=reader.readLine();
+            ss = s.split(" +");
+            sf1=ss[1];
             sUsedSize = Integer.parseInt(sf.trim()) - Integer.parseInt(sf1.trim());
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
-    private void numberOfCore() {
+
+    public void numberOfCore() {
         File folder = new File("/sys/devices/system/cpu/");
         File[] listOfFiles = folder.listFiles();
         no_of_core = 0;
         for (int i = 0; i < listOfFiles.length; i++) {
             for (int j = 0; j < 8; j++) {
                 if (listOfFiles[i].getName().contains("cpu" + j)) {
-                  //  System.out.println("Directory " + listOfFiles[i].getName());
+                    //  System.out.println("Directory " + listOfFiles[i].getName());
                     no_of_core += 1;
                 }
             }
-
-
         }
+
     }
 
     // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
@@ -323,67 +314,74 @@ public class ObserverMain extends ObserverTemplate {
         int i = 0;
         while (i < no_of_core) {
             icore[i] = (readCore(i) * 100);
-
             readCpuFrequency(i);
             i += 1;
-
-
         }
 //        for(float j : icore){
 //            System.out.println("core usage" + j);
 //        }
-        count++;
+
+
     }
 
-    private void waitForCoreUsageThreads()
-    {
-        for (Thread core_usgae : th1)
-        {
-            try {
-                core_usgae.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
     private void readCoreUsage_Threadtest() {
         int i = 0;
 
-        while(i< no_of_core) {
+        while (i < no_of_core) {
             cu1[i] = new CoreUtilization(i);
             //new Thread(cu1[i]).start();
             th1[i] = new Thread(cu1[i]);
             th1[i].start();
-            i+=1;
+            i += 1;
         }
-        i=0;
+        i = 0;
         waitForCoreUsageThreads();
         while (i < no_of_core) {
             icore[i] = cu1[i].getCoreUtilization();
             //System.out.println("core usage "+i +"-> "+ icore[i]);
-            i+=1;
+
+            readCpuFrequency(i);
+            i += 1;
+        }
+
+    }
+
+    private void waitForCoreUsageThreads() {
+        for (int i = 0; i < no_of_core; i++) {
+            try {
+                th1[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+    public void readCpuFrequency(int i) {
+        try {
+            String file = "/sys/devices/system/cpu/cpu";
+            file = file + i;
+            file = file + "/cpufreq/scaling_cur_freq";
+            reader = new RandomAccessFile(file, "r");
+            s = reader.readLine();
+            icpuFreq[i] = s;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
 
-
-public void readCpuFrequency(int i){
-    try {
-        String file= "/sys/devices/system/cpu/cpu";
-        file = file + i;
-        file = file+ "/cpufreq/scaling_cur_freq";
-        reader = new RandomAccessFile(file, "r");
-        s = reader.readLine();
-        icpuFreq[i]= s;
-
-    }catch(FileNotFoundException e){
-            e.printStackTrace();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-    }
     //returns the core usage of ith core.
     private float readCore(int i) {
 
@@ -453,6 +451,7 @@ public void readCpuFrequency(int i){
             }
             bw.newLine();
             bw.close();
+            this.count++;
         } catch (Exception e) {
             e.printStackTrace();
         }

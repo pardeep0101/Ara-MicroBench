@@ -72,7 +72,6 @@ public class CoreUtilization implements Runnable {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
         return 0;
     }
 
