@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
@@ -97,8 +98,12 @@ public class MainActivity extends ActionBarActivity {
 
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
-                //System.out.println("Im starting the cpu test");
-               t.add_test(t.make_test("cpu"));
+                String threads = ((EditText) findViewById(R.id.thread_number)).getText().toString();
+                int number_of_threads = new Integer(threads);
+                for(int i=0 ; i < number_of_threads ; i++){
+                    t.add_test(t.make_test("cpu"));
+                }
+
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
