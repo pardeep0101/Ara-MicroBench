@@ -18,9 +18,11 @@ import java.net.URISyntaxException;
  */
 public class MyService extends Service {
     private final IBinder ARABinder = new MyLocalBinder();
-    AttributeGenerator at1 = null;
+    private AttributeGenerator at1 = null;
     private static final String TAG = "ARA SERVICE";
-    boolean workdone=false;
+    private Notification foregroundNotification;
+    final int notificationID=1;
+
     public MyService(){
 
         Log.d("ARA Service", "construction");
@@ -45,7 +47,7 @@ public class MyService extends Service {
         Log.d(TAG, "Service created");
     }
 
-    String observerType;
+    String observerType,intentURI,obsvType;
     Intent b;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -58,6 +60,7 @@ public class MyService extends Service {
         if(intent !=null) {
 
             observerType = intent.getStringExtra("ObserverType");
+            //saving the variable to restore the service state just in case if it gets killed unexpectedly.
             SharedPreferences.Editor editor = sp.edit();
             editor.putString("observerType", observerType);
             editor.putString("intentMA", intent.toUri(0));
@@ -72,8 +75,8 @@ public class MyService extends Service {
             editor.commit();
         }
         else{
-            String intentURI = sp.getString("intentMA",null);
-            String obsvType = sp.getString("observerType",null);
+            intentURI = sp.getString("intentMA",null);
+            obsvType = sp.getString("observerType",null);
             getAttributeList(obsvType);
             try {
                 getIntentParameter(Intent.parseUri(intentURI,0));
@@ -82,9 +85,12 @@ public class MyService extends Service {
             }
             Log.d(TAG, "running intent from null");
         }
+        //creating a notification to start a foreground activity.
         startInForeground();
         return START_STICKY;
     }
+
+    //In order to create a bounded service.
     public class MyLocalBinder extends Binder {
 
         MyService getService(){
@@ -100,10 +106,8 @@ public class MyService extends Service {
             Log.d(TAG, "Service stopped, stopping DC thread..");
 
     }
-    Notification foregroundNotification;
-    final int notificationID=1;
 
-    void startInForeground(){
+    private void startInForeground(){
         int notificationIcon = R.mipmap.ic_stat_ara;
         String notificationText = "Running ARA DC in the background";
         long notificationTimeStamp = System.currentTimeMillis();

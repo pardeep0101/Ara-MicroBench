@@ -70,14 +70,14 @@ public class ObserverMain extends ObserverTemplate {
         //if there is a need to run this class as a thread and get a file we can init update method from here
         //or we can imply comment this line and call each method independtly
 
-        //this.update(testType, this.testStarted, this.testStopped, this.ma);
+        //this.update(testType, this.testStarted, this.testStopped, this.b);
 
         //find the number of cores
         this.numberOfCore();
     }
 
     /*
-    This contructor could be used to create objects binded with "AttributeGenerator" objec
+    This contructor could be used to create objects binded with "AttributeGenerator" object
      */
     public ObserverMain(manageObservers ob1, String name) {
         this.ob1 = ob1;
@@ -141,7 +141,7 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     // set of methods to run in thread
-    // start and stop test methods could be when running this cass independltly or in Unit testing ;) .
+    // start and stop test methods could be used when running this cass independently or in Unit testing ;) .
     public void startTest() {
         this.testStarted = true;
         this.testStopped = false;
@@ -184,39 +184,27 @@ public class ObserverMain extends ObserverTemplate {
             } else {
 
                 // System.out.println("No CPU stat data for Nexus ");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
             }
 
             //memory usage of app and system
             getApplicationUsedMemorySize();
             getSystemUsedMemorySize();
 
-            //getCoreFrequency();
-
             // CPU core usage in percentage
-
-//            readCoreUsage(); //takes 200 ms for each core.
-
             readCoreUsage_Threadtest();
 
             writeToFile();
 
         } else {
 
-            //if ma is not available then no voltage can be obtained via api so need to try with adb
             getPowerStat_ADB();
+
             //memory usage of app and system
             getApplicationUsedMemorySize();
             getSystemUsedMemorySize();
 
-            //getCoreFrequency();
-
             // CPU core usage in percentage
-//            readCoreUsage(); //takes 200 ms for each core.
             readCoreUsage_Threadtest();
             writeToFile();
         }
@@ -312,22 +300,6 @@ public class ObserverMain extends ObserverTemplate {
 
     }
 
-
-    // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
-    private void readCoreUsage() {
-        int i = 0;
-        while (i < no_of_core) {
-            icore[i] = (readCore(i) * 100);
-            readCpuFrequency(i);
-            i += 1;
-        }
-//        for(float j : icore){
-//            System.out.println("core usage" + j);
-//        }
-
-
-    }
-
     private void readCoreUsage_Threadtest() {
         int i = 0;
 
@@ -385,59 +357,6 @@ public class ObserverMain extends ObserverTemplate {
 
     }
 
-
-    //returns the core usage of ith core.
-    private float readCore(int i) {
-
-        try {
-            reader = new RandomAccessFile("/proc/stat", "r");
-            for (int ii = 0; ii < i + 1; ++ii) {
-                reader.readLine();
-            }
-            String load = reader.readLine();
-            if (load.contains("cpu")) {
-                String[] toks = load.split(" +");
-                long work1 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
-                long total1 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
-                        Long.parseLong(toks[4]) + Long.parseLong(toks[5])
-                        + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-                try {
-
-                    Thread.sleep(200);
-                } catch (Exception e) {
-                }
-                reader.seek(0);
-                //skip to the line we need
-                for (int ii = 0; ii < i + 1; ++ii) {
-                    reader.readLine();
-                }
-                load = reader.readLine();
-
-                if (load.contains("cpu")) {
-                    reader.close();
-                    toks = load.split(" +");
-
-                    long work2 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3]);
-                    long total2 = Long.parseLong(toks[1]) + Long.parseLong(toks[2]) + Long.parseLong(toks[3]) +
-                            Long.parseLong(toks[4]) + Long.parseLong(toks[5])
-                            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-                    return (float) (work2 - work1) / ((total2 - total1));
-                } else {
-                    reader.close();
-                    return 0;
-                }
-
-            } else {
-                reader.close();
-                return 0;
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return 0;
-    }
 
     private void writeToFile() {
         try {

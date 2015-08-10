@@ -129,7 +129,7 @@ public class MainActivity extends ActionBarActivity {
                 t.add_test(t.make_test("memory"));
             }
             //Code added:Pardeep
-            // check box controller for data capturing
+            // check box controller for data capturing, running data capturing via service now.
             if (((CheckBox) findViewById(R.id.dcapture_box)).isChecked()) {
                 iIntent.putExtra("ObserverType", (((CheckBox) findViewById(R.id.dcapture_box)).getText()).toString());
                 iIntent.putExtras(b);
