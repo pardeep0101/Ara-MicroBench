@@ -1,8 +1,6 @@
 package com.example.xaradrim.benchmark_example;
 
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
@@ -66,17 +64,6 @@ public class MainActivity extends ActionBarActivity {
         b = this.registerReceiver(null, ifilter);
         tv = (TextView) findViewById(R.id.status);
         iIntent = new Intent(this, MyService.class);
-    }
-
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 

@@ -30,22 +30,6 @@ public class MyService extends Service {
         return ARABinder;
     }
 
-////    @Override
-//    protected void onHandleIntent(Intent intent) {
-//
-//        Log.d("ARA Service", "on Handle intent");
-//        if(intent !=null) {
-//            String observerType = intent.getStringExtra("ObserverType");
-//            if (observerType != null) {
-//                getAttributeList(observerType);
-//            }
-//
-//            getIntentParameter(intent);
-//            workdone=intent.getBooleanExtra("stopWork",false);
-//        }
-//    }
-
-
     public void getAttributeList(String name){
         at1.addAttributeList(name);
         Log.d(TAG, "Attribute List added");
@@ -111,11 +95,10 @@ public class MyService extends Service {
     @Override
     public void onDestroy(){
         super.onDestroy();
-//        if(workdone) {
+
             at1.emptyAttributeList();
             Log.d(TAG, "Service stopped, stopping DC thread..");
-//        }
-//        Log.d(TAG, "Service stopped, stopping DC thread..");
+
     }
     Notification foregroundNotification;
     final int notificationID=1;
