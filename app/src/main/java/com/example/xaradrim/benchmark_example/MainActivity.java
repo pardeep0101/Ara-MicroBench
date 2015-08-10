@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -12,7 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
@@ -31,6 +32,8 @@ public class MainActivity extends ActionBarActivity {
     String serviceStartedAt, serviceStoppedAt;
     TextView tv;
     private Test t = null;
+   // private ObserverMain external_observer = null; // to run observer separately
+    AttributeGenerator at1 = null;
     private String device_manufacturer, device_model;
     private Intent b, iIntent;
     private IntentFilter ifilter;
@@ -53,6 +56,9 @@ public class MainActivity extends ActionBarActivity {
         if (device_model.equalsIgnoreCase("Nexus S 4G")) {
             phoneType = "nexus";
 
+        System.out.println(device_manufacturer+" -> "+ device_model);
+        if(device_manufacturer.contains("motorola")){
+            phoneType="moto";
         }
         if (device_manufacturer.equalsIgnoreCase("Samsung") && !(device_model.equalsIgnoreCase("Nexus S 4G"))) {
             phoneType = "samsung";
@@ -74,10 +80,14 @@ public class MainActivity extends ActionBarActivity {
         return false;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
+
+    public int getVoltage()
+    {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent b = this.registerReceiver(null, ifilter);
+        return b.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -120,8 +130,12 @@ public class MainActivity extends ActionBarActivity {
 
 
             if (((CheckBox) findViewById(R.id.cpu_box)).isChecked()) {
-                //System.out.println("Im starting the cpu test");
-                t.add_test(t.make_test("cpu"));
+                String threads = ((EditText) findViewById(R.id.thread_number)).getText().toString();
+                int number_of_threads = new Integer(threads);
+                for(int i=0 ; i < number_of_threads ; i++){
+                    t.add_test(t.make_test("cpu"));
+                }
+
 
             }
             if (((CheckBox) findViewById(R.id.memory_box)).isChecked()) {
@@ -150,8 +164,11 @@ public class MainActivity extends ActionBarActivity {
                 serviceStoppedAt = getSystemTime();
                 tv.setText("Status: Started at " + serviceStartedAt + "; Completed at " + serviceStoppedAt);
             }
+
+
         }
     }
+
 }
 
 

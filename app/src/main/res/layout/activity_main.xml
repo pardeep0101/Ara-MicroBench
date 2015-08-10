@@ -42,8 +42,7 @@
         android:layout_height="wrap_content"
         android:text="Capture data"
         android:id="@+id/dcapture_box"
-        android:layout_alignTop="@+id/cpu_box"
-        android:layout_alignRight="@+id/textView2"
+        android:layout_alignTop="@+id/memory_box"
         android:layout_alignEnd="@+id/textView2" />
 
 
@@ -57,8 +56,17 @@
         android:onClick="onClick"
         android:textSize="28dp"
         android:layout_below="@+id/memory_box"
-        android:layout_alignLeft="@+id/textView2"
-        android:layout_alignStart="@+id/textView2" />
+        android:layout_toEndOf="@+id/memory_box"
+        android:layout_marginTop="58dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/thread_number"
+        android:layout_alignTop="@+id/cpu_box"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"

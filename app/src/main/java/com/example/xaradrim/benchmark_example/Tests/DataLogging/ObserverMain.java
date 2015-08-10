@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -44,6 +45,7 @@ public class ObserverMain extends ObserverTemplate {
     private File file;
     private double volt = 0, curr = 0, power = 0;
     private long freeSize = 0L, totalSize = 0L, usedSize = -1L, sUsedSize = -1L;
+
     //update coming from update()
     private String testType = null;
     private boolean testStarted = false, testStopped = false;
@@ -56,9 +58,7 @@ public class ObserverMain extends ObserverTemplate {
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
 
-
-    private Intent b;
-
+    private MainActivity ma = null;
 
     /*
     This constructor could be used to create object of this class and run observer directly
@@ -70,7 +70,7 @@ public class ObserverMain extends ObserverTemplate {
         //if there is a need to run this class as a thread and get a file we can init update method from here
         //or we can imply comment this line and call each method independtly
 
-        //this.update(testType, this.testStarted, this.testStopped, this.b);
+        //this.update(testType, this.testStarted, this.testStopped, this.ma);
 
         //find the number of cores
         this.numberOfCore();
@@ -272,6 +272,7 @@ public class ObserverMain extends ObserverTemplate {
     }
 
     public void getSystemUsedMemorySize() {
+
         try {
             reader = new RandomAccessFile("/proc/meminfo", "r");
             s =reader.readLine();
@@ -307,6 +308,8 @@ public class ObserverMain extends ObserverTemplate {
             }
         }
 
+
+        }
     }
 
     // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
