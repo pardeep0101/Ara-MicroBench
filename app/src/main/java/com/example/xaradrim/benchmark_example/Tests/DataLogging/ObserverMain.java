@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.util.Log;
 
 import com.example.xaradrim.benchmark_example.MainActivity;
 
@@ -14,7 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -58,8 +58,8 @@ public class ObserverMain extends ObserverTemplate {
     private BufferedReader bufferedReader;
     private RandomAccessFile reader;
 
-    private MainActivity ma = null;
-
+    private static final String TAG = "ARA APP";
+    private Intent b;
     /*
     This constructor could be used to create object of this class and run observer directly
      */
@@ -163,7 +163,8 @@ public class ObserverMain extends ObserverTemplate {
             // this sleep time is removed as 200ms sleep time is induced in readCoreUsage() for each core.
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
+                Log.d(TAG,"Application is running");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -309,8 +310,8 @@ public class ObserverMain extends ObserverTemplate {
         }
 
 
-        }
     }
+
 
     // reads usage of each core available. right now set to 8.(missing automation based on no. of available cores)
     private void readCoreUsage() {

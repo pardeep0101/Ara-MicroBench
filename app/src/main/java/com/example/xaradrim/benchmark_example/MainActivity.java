@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.xaradrim.benchmark_example.Tests.DataLogging.AttributeGenerator;
@@ -28,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
 
     public static String phoneType = "";
     // private ObserverMain external_observer = null; // to run observer separately
-    AttributeGenerator at1 = null;
+
     String serviceStartedAt, serviceStoppedAt;
     TextView tv;
     private Test t = null;
@@ -56,9 +57,6 @@ public class MainActivity extends ActionBarActivity {
         if (device_model.equalsIgnoreCase("Nexus S 4G")) {
             phoneType = "nexus";
 
-        System.out.println(device_manufacturer+" -> "+ device_model);
-        if(device_manufacturer.contains("motorola")){
-            phoneType="moto";
         }
         if (device_manufacturer.equalsIgnoreCase("Samsung") && !(device_model.equalsIgnoreCase("Nexus S 4G"))) {
             phoneType = "samsung";
@@ -69,6 +67,7 @@ public class MainActivity extends ActionBarActivity {
         tv = (TextView) findViewById(R.id.status);
         iIntent = new Intent(this, MyService.class);
     }
+
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
