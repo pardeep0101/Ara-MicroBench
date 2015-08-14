@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +37,7 @@ public class MainActivity extends ActionBarActivity {
     private String device_manufacturer, device_model;
     private Intent b, iIntent;
     private IntentFilter ifilter;
-
+    protected PowerManager.WakeLock mWakeLock;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +65,17 @@ public class MainActivity extends ActionBarActivity {
         b = this.registerReceiver(null, ifilter);
         tv = (TextView) findViewById(R.id.status);
         iIntent = new Intent(this, MyService.class);
+
+        final PowerManager pm = (PowerManager) getSystemService(this.POWER_SERVICE);
+        this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ARA APP");
+        this.mWakeLock.acquire();
     }
 
+    @Override
+    public void onDestroy() {
+        this.mWakeLock.release();
+        super.onDestroy();
+    }
 
     public int getVoltage()
     {
