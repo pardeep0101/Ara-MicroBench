@@ -1,9 +1,6 @@
 # Ara-MicroBench
 Making a Micro Regulated Benchmark for the Ara project.
-
-<<<<<<< HEAD
-QA work
-=======
+===================================
 
 Project Overview
 The objective of the project is to characterize resource usage in the spiral 3 prototype,
@@ -19,7 +16,7 @@ System evaluation using microbenchmarks.
 Evaluation using real Android applications.
 
 Activities :
-3. Micro-benchmark development
+Micro-benchmark development
 a. Extracted power profile provided by vendor, and use it to validate our
 findings
 b. CPU intensive micro benchmark (similar to Dhrystone) implemented,
