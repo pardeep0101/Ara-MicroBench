@@ -97,7 +97,7 @@ public class MyService extends Service {
             return MyService.this;
         }
     }
-
+//s
     @Override
     public void onDestroy(){
         super.onDestroy();
